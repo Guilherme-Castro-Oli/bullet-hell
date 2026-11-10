@@ -14,11 +14,9 @@ public class Player {
     // final significa que cor, tamanho e nome são definidos na criação do jogador.
     private final Color color;
     private final int size = 22;
-    private final String name;
 
     /** Cria um jogador na posição indicada e com uma cor fácil de reconhecer. */
-    public Player(String name, int x, int y, Color color) {
-        this.name = name;
+    public Player(int x, int y, Color color) {
         this.x = x;
         this.y = y;
         this.color = color;
@@ -29,11 +27,11 @@ public class Player {
      * width e height vêm da área de jogo; usamos size para impedir que
      * qualquer parte do quadrado ultrapasse suas bordas.
      */
-    public void move(double dx, double dy, int width, int height) {
+    public void move(double dx, double dy, int minx, int miny, int maxx, int maxy) {
         // Math.min limita o máximo e Math.max limita o mínimo da coordenada.
-        x = Math.max(0, Math.min(width - size, x + dx));
+        x = Math.max(minx, Math.min(maxx - size, x + dx));
         // A coordenada 40 deixa livre a faixa superior usada pelo HUD.
-        y = Math.max(40, Math.min(height - size, y + dy));
+        y = Math.max(miny, Math.min(maxy - size, y + dy));
     }
 
     /** Desenha o quadrado preenchido e uma borda branca para destacá-lo. */
@@ -48,5 +46,4 @@ public class Player {
     public double centerX() { return x + size / 2.0; }
     public double centerY() { return y + size / 2.0; }
     public Color getColor() { return color; }
-    public String getName() { return name; }
 }

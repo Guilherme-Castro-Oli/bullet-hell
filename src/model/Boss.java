@@ -8,7 +8,7 @@ import java.awt.Graphics2D;
  * O conceito também escolhe a forma desenhada, servindo de demonstração
  * visual simples de como um mesmo método pode produzir resultados diferentes.
  */
-public class Boss {
+public abstract class Boss {
     private final String concept, name;
     private final Color color;
     private final int maxHp;
@@ -67,4 +67,6 @@ public class Boss {
         g.setColor(new Color(255, 220, 70));
         g.fillRect((int)x-40, (int)y+38, 80 * hp / maxHp, 7);
     }
+
+    
 }

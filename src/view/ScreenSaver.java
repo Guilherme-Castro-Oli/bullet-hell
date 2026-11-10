@@ -4,6 +4,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import javax.imageio.ImageIO;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -13,6 +15,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+
 
 import model.*;
 
@@ -21,6 +25,7 @@ public class ScreenSaver extends JFrame {
     private static final int CANVAS_WIDTH = 800;
     private static final int CANVAS_HEIGHT = 600;
     private static final int DELAY_MS = 16; 
+    private static BufferedImage background;
 
     private ScreenSaverPanel canvas;
 
@@ -56,7 +61,7 @@ public class ScreenSaver extends JFrame {
         ** ↓ Declare suas formas aqui ↓ **
         *********************************/
         
-
+        Player p1;
 
 
         
@@ -67,6 +72,11 @@ public class ScreenSaver extends JFrame {
         private boolean down = false;
         private boolean right = false;
         private boolean left = false;
+        private boolean shift = false;
+        private boolean w = false;
+        private boolean s = false;
+        private boolean a = false;
+        private boolean d = false;
 
         public ScreenSaverPanel() {
             this.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
@@ -90,6 +100,16 @@ public class ScreenSaver extends JFrame {
                         right = true;
                     if (e.getKeyCode() == KeyEvent.VK_LEFT)
                         left = true;
+                    if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+                        shift = true;
+                    if (e.getKeyCode() == KeyEvent.VK_W)
+                        w = true;
+                    if (e.getKeyCode() == KeyEvent.VK_S)
+                        s = true;
+                    if (e.getKeyCode() == KeyEvent.VK_A)
+                        a = true;
+                    if (e.getKeyCode() == KeyEvent.VK_D)
+                        d = true;
                 }
 
                 @Override
@@ -105,6 +125,16 @@ public class ScreenSaver extends JFrame {
                         right = false;
                     if (e.getKeyCode() == KeyEvent.VK_LEFT)
                         left = false;
+                    if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+                        shift = false;
+                    if (e.getKeyCode() == KeyEvent.VK_W)
+                        w = false;
+                    if (e.getKeyCode() == KeyEvent.VK_S)
+                        s = false;
+                    if (e.getKeyCode() == KeyEvent.VK_D)
+                        d = false;
+                    if (e.getKeyCode() == KeyEvent.VK_A)
+                        a = false;
                 }
             });
 
@@ -112,8 +142,13 @@ public class ScreenSaver extends JFrame {
             ** ↓ Instancie suas formas aqui ↓ **
             ***********************************/
             
+            try {
+                background = ImageIO.read(getClass().getResource("/image/background.png"));
+            } catch (Exception e) {
+                System.out.println("nun carrego o background");
+            }
 
-
+            p1 = new Player( 100, 100, new Color(255,0,0));
 
 
             this.timer = new Timer(DELAY_MS, this);
@@ -138,7 +173,19 @@ public class ScreenSaver extends JFrame {
             /******************************
             ** ↓ Mova suas formas aqui ↓ **
             ******************************/
-            
+            //bordas: 50x, 75y, 700w, 450h
+            if (w) {
+                p1.move(0, -3, 50, 75, 750, 525);
+            }
+            if (a) {
+                p1.move(-3, 0, 50, 75, 750, 525);
+            }
+            if (s) {
+                p1.move(0, 3, 50, 75, 750, 525);
+            }
+            if (d) {
+                p1.move(3, 0, 50, 75, 750, 525);
+            }
 
 
 
@@ -157,8 +204,9 @@ public class ScreenSaver extends JFrame {
             ** ↓ Desenhe suas formas aqui ↓ **
             *********************************/
 
-
-
+            //bordas: 50x, 75y, 750w, 525h
+            g2d.drawImage(background, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, null);
+            p1.draw(g2d);
 
 
         }

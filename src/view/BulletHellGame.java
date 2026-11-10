@@ -321,18 +321,5 @@ public class BulletHellGame extends JFrame {
             g.setColor(new Color(255,255,255,100));
             g.drawRoundRect(barX,barY,barWidth,10,8,8);
         }
-        // Desenha a imagem background.png cobrindo a área do jogo.
-        // O tamanho original pode ser diferente de 800x600, por isso ela é redimensionada.
-        private void drawOverworld(Graphics2D g) {
-            if (background != null) {
-                g.drawImage(background, 0, 0, W, H, null);
-                return;
-            }
-            // Fundo de reserva usado apenas se o recurso não estiver no classpath.
-            g.setColor(new Color(91,143,57)); g.fillRect(0,0,W,H);
-            g.setColor(new Color(102,157,62));
-            for(int y=45;y<H;y+=48) for(int x=((y/48)%2)*24;x<W;x+=48) g.fillRect(x,y,24,24);
-            g.setColor(new Color(225,210,145)); g.fillRect(0,38,W,3);
-        }
     }
 }
