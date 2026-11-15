@@ -64,6 +64,7 @@ public class ScreenSaver extends JFrame {
         
         Player p1, p2;
         ArrayList<Projectile> projectiles;
+        Boss boss;
 
 
         
@@ -153,6 +154,7 @@ public class ScreenSaver extends JFrame {
             p1 = new Player( 200, 450, new Color(255,0,0));
             p2 = new Player( 600, 450, new Color(0,0,255));
             projectiles = new ArrayList<Projectile>();
+            boss = new BossHeranca(300, 200);
 
             this.timer = new Timer(DELAY_MS, this);
         }
@@ -206,6 +208,7 @@ public class ScreenSaver extends JFrame {
                     projectiles.add(p1.fire());
                 }
             }
+            // talvez troca sapoxa (a tecla espaço) por ponto e virgula 
             if (space) {
                 if (p2.canShoot()) {
                     projectiles.add(p2.fire());
@@ -238,11 +241,12 @@ public class ScreenSaver extends JFrame {
 
             //bordas: 50x, 75y, 750w, 525h
             g2d.drawImage(background, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, null);
-            p1.draw(g2d);
-            p2.draw(g2d);
+            boss.draw(g2d);
             for (Projectile proj : projectiles) {
                 proj.draw(g2d);
             }
+            p1.draw(g2d);
+            p2.draw(g2d);
             
 
 
