@@ -64,7 +64,7 @@ class GamePanel extends JPanel implements ActionListener {
     private final Map<Projectile, Fighter> projectileOwners = new IdentityHashMap<>();
     private final boolean[] keys = new boolean[512];
     private final boolean[] mouseButtons = new boolean[3];
-    private Boss[] bosses = createBosses();
+    private Boss[] bosses;
     private int bossIndex;
     private int fireTick;
     private int playerOneBossDamage;
