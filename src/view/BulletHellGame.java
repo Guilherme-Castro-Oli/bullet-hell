@@ -16,15 +16,9 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-<<<<<<< HEAD
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GradientPaint;
-=======
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
->>>>>>> 1c870c6 (test)
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
@@ -38,15 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-<<<<<<< HEAD
-import java.util.Iterator;
-import java.util.List;
-
-/** Janela e coordenação da partida de dois jogadores. */
-public class BulletHellGame extends JFrame {
-    private static final long serialVersionUID = 1L;
-
-=======
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -61,7 +46,6 @@ public class BulletHellGame extends JFrame {
      * instala o GamePanel, ajusta o tamanho ao painel e centraliza a janela.
      * Toda a lógica de partida começa dentro do painel instalado aqui.
      */
->>>>>>> 1c870c6 (test)
     public BulletHellGame() {
         super("POO Hell — Arena dos Conceitos");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -71,14 +55,6 @@ public class BulletHellGame extends JFrame {
         setLocationRelativeTo(null);
     }
 
-<<<<<<< HEAD
-    /** Permite iniciar esta tela diretamente pela classe BulletHellGame. */
-        public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new BulletHellGame().setVisible(true));
-    }
-
-    /** O painel coordena entrada, regras da partida e desenho. */
-=======
     /**
      * Ponto de entrada para abrir esta tela diretamente. O invokeLater agenda a criação
      * da janela na thread de eventos do Swing, onde eventos e desenho devem ocorrer.
@@ -88,7 +64,6 @@ public class BulletHellGame extends JFrame {
     }
 
         /** Painel central: guarda o estado da partida, trata entradas, atualiza regras e desenha telas. */
->>>>>>> 1c870c6 (test)
     private static class GamePanel extends JPanel implements ActionListener {
         private static final long serialVersionUID = 1L;
 
@@ -116,20 +91,14 @@ public class BulletHellGame extends JFrame {
         private final Fighter playerOne = new Fighter(280, PLAY_HEIGHT - 80, new Color(80, 220, 255));
         private final Fighter playerTwo = new Fighter(500, PLAY_HEIGHT - 80, new Color(255, 115, 180));
         private final List<Projectile> projectiles = new ArrayList<>();
-<<<<<<< HEAD
-=======
         private final Map<Projectile, Fighter> projectileOwners = new IdentityHashMap<>();
->>>>>>> 1c870c6 (test)
         private final boolean[] keys = new boolean[512];
         private final boolean[] mouseButtons = new boolean[3];
         private Boss[] bosses = createBosses();
         private int bossIndex;
         private int fireTick;
-<<<<<<< HEAD
-=======
         private int playerOneBossDamage;
         private int playerTwoBossDamage;
->>>>>>> 1c870c6 (test)
         private Explosion playerOneExplosion;
         private Explosion playerTwoExplosion;
         private Screen screen = Screen.MENU;
@@ -148,13 +117,10 @@ public class BulletHellGame extends JFrame {
         private long bestClearTimeMillis = Long.MAX_VALUE;
         private Screen pausedFrom = Screen.PLAYING;
 
-<<<<<<< HEAD
-=======
         /**
          * Define o tamanho da arena, carrega os fundos e o portal, registra os controles
          * e inicia o Timer. A cada 16 ms o Timer chama actionPerformed para avançar o jogo.
          */
->>>>>>> 1c870c6 (test)
         GamePanel() {
             setPreferredSize(new Dimension(WIDTH, HEIGHT));
             setFocusable(true);
@@ -165,14 +131,11 @@ public class BulletHellGame extends JFrame {
             timer.start();
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Procura o fundo do menu primeiro como recurso empacotado; se não estiver no
          * classpath, tenta o caminho src usado durante o desenvolvimento. Retorna null
          * nos dois casos de falha para drawMenu pintar o gradiente de reserva.
          */
->>>>>>> 1c870c6 (test)
         private BufferedImage loadMenuBackground() {
             BufferedImage image = loadImage(MENU_IMAGE_RESOURCE);
             if (image != null) {
@@ -185,13 +148,10 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Procura a imagem do portal no classpath e depois em src/image. Se nenhuma
          * leitura funcionar, retorna null; Portal.draw então desenha uma forma simples.
          */
->>>>>>> 1c870c6 (test)
         private BufferedImage loadPortalImage() {
             BufferedImage image = loadImage("/image/portal_azul.png");
             if (image != null) {
@@ -204,14 +164,11 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Abre um recurso de imagem pelo nome absoluto do classpath, como /image/background.png.
          * Trata recurso ausente e erro de leitura retornando null para o chamador decidir
          * qual imagem de reserva usar.
          */
->>>>>>> 1c870c6 (test)
         private BufferedImage loadImage(String resource) {
             try {
                 return ImageIO.read(getClass().getResource(resource));
@@ -220,13 +177,10 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Carrega a imagem de cenário usada por drawOverworld. Quando ela não existe,
          * informa o problema e retorna null para que drawOverworld desenhe o campo simples.
          */
->>>>>>> 1c870c6 (test)
         private BufferedImage loadBackground() {
             BufferedImage image = loadImage("/image/background.png");
             if (image == null) {
@@ -235,14 +189,11 @@ public class BulletHellGame extends JFrame {
             return image;
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Liga pressionar/soltar teclas a bind e instala listeners do mouse. Os listeners
          * iniciam o menu, ativam o portal no intervalo, guardam botões de tiro e atualizam
          * o efeito visual do botão START quando o ponteiro entra ou sai da área dele.
          */
->>>>>>> 1c870c6 (test)
         private void configureControls() {
             bind(KeyEvent.VK_W, "w", true);
             bind(KeyEvent.VK_A, "a", true);
@@ -270,10 +221,7 @@ public class BulletHellGame extends JFrame {
             bind(KeyEvent.VK_SPACE, "spaceUp", false);
 
             addMouseListener(new MouseAdapter() {
-<<<<<<< HEAD
-=======
                 /** Trata clique no botão do menu, clique para ativar portal e botões de tiro. */
->>>>>>> 1c870c6 (test)
                 @Override
                 public void mousePressed(MouseEvent event) {
                     int button = event.getButton();
@@ -291,10 +239,7 @@ public class BulletHellGame extends JFrame {
                     }
                 }
 
-<<<<<<< HEAD
-=======
                 /** Libera o estado do botão do mouse para que o jogador pare de atirar. */
->>>>>>> 1c870c6 (test)
                 @Override
                 public void mouseReleased(MouseEvent event) {
                     int button = event.getButton();
@@ -303,10 +248,7 @@ public class BulletHellGame extends JFrame {
                     }
                 }
 
-<<<<<<< HEAD
-=======
                 /** Remove o realce do botão START quando o ponteiro sai do painel. */
->>>>>>> 1c870c6 (test)
                 @Override
                 public void mouseExited(MouseEvent event) {
                     startButtonHovered = false;
@@ -314,10 +256,7 @@ public class BulletHellGame extends JFrame {
                 }
             });
             addMouseMotionListener(new MouseAdapter() {
-<<<<<<< HEAD
-=======
                 /** Atualiza o realce do botão START e redesenha o menu sob o ponteiro. */
->>>>>>> 1c870c6 (test)
                 @Override
                 public void mouseMoved(MouseEvent event) {
                     startButtonHovered = screen == Screen.MENU && START_BUTTON.contains(event.getPoint());
@@ -326,8 +265,6 @@ public class BulletHellGame extends JFrame {
             });
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Registra no InputMap a tecla pressionada ou solta e cria sua ação no ActionMap.
          * A ação trata comandos especiais (iniciar, pausar, menu, HUD e portal); as teclas
@@ -336,17 +273,13 @@ public class BulletHellGame extends JFrame {
          * @param name identificador da ação Swing
          * @param pressed true para pressionamento, false para soltura
          */
->>>>>>> 1c870c6 (test)
         private void bind(int keyCode, String name, boolean pressed) {
             getInputMap(WHEN_IN_FOCUSED_WINDOW).put(
                     KeyStroke.getKeyStroke(keyCode, 0, !pressed), name);
             getActionMap().put(name, new AbstractAction() {
                 private static final long serialVersionUID = 1L;
 
-<<<<<<< HEAD
-=======
                 /** Encaminha comandos de tela para seus métodos e grava teclas de movimento/tiro. */
->>>>>>> 1c870c6 (test)
                 @Override
                 public void actionPerformed(ActionEvent event) {
                     if ("start".equals(name)) {
@@ -383,41 +316,16 @@ public class BulletHellGame extends JFrame {
                         return;
                     }
 
-<<<<<<< HEAD
-                    int keyIndex = keyIndex(name.replace("Up", ""));
-                    if (keyIndex >= 0) {
-                        keys[keyIndex] = pressed;
-                    }
-=======
                     // O código da tecla já é o índice usado no vetor de entrada.
                     keys[keyCode] = pressed;
->>>>>>> 1c870c6 (test)
                 }
             });
         }
 
-<<<<<<< HEAD
-        private int keyIndex(String key) {
-            switch (key) {
-                case "w": return KeyEvent.VK_W;
-                case "a": return KeyEvent.VK_A;
-                case "s": return KeyEvent.VK_S;
-                case "d": return KeyEvent.VK_D;
-                case "up": return KeyEvent.VK_UP;
-                case "down": return KeyEvent.VK_DOWN;
-                case "left": return KeyEvent.VK_LEFT;
-                case "right": return KeyEvent.VK_RIGHT;
-                case "space": return KeyEvent.VK_SPACE;
-                default: return -1;
-            }
-        }
-
-=======
         /**
          * Começa uma partida nova: delega a limpeza completa a resetMatch, muda a tela
          * para PLAYING, inicia a contagem de tempo e solicita um redesenho do painel.
          */
->>>>>>> 1c870c6 (test)
         private void startGame() {
             resetMatch();
             screen = Screen.PLAYING;
@@ -426,28 +334,20 @@ public class BulletHellGame extends JFrame {
             repaint();
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Descarta projéteis e explosões, restaura os dois jogadores, recria os chefes,
          * zera pontuação, combo, pausas e contadores de dano e limpa as entradas ativas.
          * startGame chama este método antes de iniciar o cronômetro da nova partida.
          */
->>>>>>> 1c870c6 (test)
         private void resetMatch() {
             playerOne.reset();
             playerTwo.reset();
             playerOneExplosion = null;
             playerTwoExplosion = null;
             projectiles.clear();
-<<<<<<< HEAD
-            Arrays.fill(keys, false);
-            Arrays.fill(mouseButtons, false);
-=======
             projectileOwners.clear();
             playerOneBossDamage = 0;
             playerTwoBossDamage = 0;
->>>>>>> 1c870c6 (test)
             bosses = createBosses();
             bossIndex = 0;
             fireTick = 0;
@@ -461,32 +361,23 @@ public class BulletHellGame extends JFrame {
             clearInput();
         }
 
-<<<<<<< HEAD
-=======
         /** Muda para MENU, limpa entradas presas e agenda o redesenho da tela inicial. */
->>>>>>> 1c870c6 (test)
         private void showMenu() {
             screen = Screen.MENU;
             clearInput();
             repaint();
         }
 
-<<<<<<< HEAD
-=======
         /** Zera os vetores de entrada; é usado ao reiniciar, pausar ou trocar de tela. */
->>>>>>> 1c870c6 (test)
         private void clearInput() {
             Arrays.fill(keys, false);
             Arrays.fill(mouseButtons, false);
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Ao pausar PLAYING ou INTERMISSION, guarda a tela de origem e marca o instante
          * da pausa. Ao chamar novamente durante PAUSED, delega a retomada a resumeGame.
          */
->>>>>>> 1c870c6 (test)
         private void togglePause() {
             if (screen == Screen.PLAYING || screen == Screen.INTERMISSION) {
                 pausedFrom = screen;
@@ -499,13 +390,10 @@ public class BulletHellGame extends JFrame {
             repaint();
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Soma o intervalo pausado ao total excluído do cronômetro, restaura pausedFrom,
          * limpa controles antigos e redesenha para continuar exatamente daquela tela.
          */
->>>>>>> 1c870c6 (test)
         private void resumeGame() {
             totalPausedMillis += System.currentTimeMillis() - pauseStartedAt;
             pauseStartedAt = 0;
@@ -514,13 +402,10 @@ public class BulletHellGame extends JFrame {
             repaint();
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Retorna milissegundos desde runStartedAt, menos pausas acumuladas. Durante a
          * pausa usa pauseStartedAt; após vitória/derrota usa runEndedAt para congelar o tempo.
          */
->>>>>>> 1c870c6 (test)
         private long elapsedMillis() {
             if (runStartedAt == 0) {
                 return 0;
@@ -530,14 +415,11 @@ public class BulletHellGame extends JFrame {
             return Math.max(0, now - runStartedAt - totalPausedMillis);
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Callback do Timer (aprox. 60 vezes por segundo). No intervalo atualiza jogadores,
          * portal e movimento; em PLAYING atualiza animações, entradas, chefe, ataques,
          * projéteis e transições. Em telas estáticas retorna sem alterar a partida.
          */
->>>>>>> 1c870c6 (test)
         @Override
         public void actionPerformed(ActionEvent event) {
             if (screen == Screen.INTERMISSION) {
@@ -584,13 +466,10 @@ public class BulletHellGame extends JFrame {
             repaint();
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Verifica a condição de derrota. Só troca para DEFEAT quando ambos estão sem vida
          * e as animações de explosão terminaram; retorna true para interromper o quadro atual.
          */
->>>>>>> 1c870c6 (test)
         private boolean checkDefeat() {
             if (playerOne.isDead() && playerTwo.isDead()
                     && playerOneExplosion == null && playerTwoExplosion == null) {
@@ -601,13 +480,10 @@ public class BulletHellGame extends JFrame {
             return false;
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Calcula a direção de cada jogador subtraindo tecla esquerda/cima da direita/baixo,
          * e envia direção, velocidade e limites da arena para Fighter.move.
          */
->>>>>>> 1c870c6 (test)
         private void updatePlayerMovement() {
             double oneX = pressed(KeyEvent.VK_D) - pressed(KeyEvent.VK_A);
             double oneY = pressed(KeyEvent.VK_S) - pressed(KeyEvent.VK_W);
@@ -620,21 +496,15 @@ public class BulletHellGame extends JFrame {
                     ARENA_RIGHT, ARENA_BOTTOM);
         }
 
-<<<<<<< HEAD
-=======
         /** Permite subtrair estados de teclas para formar uma direção -1, 0 ou 1. */
->>>>>>> 1c870c6 (test)
         private int pressed(int keyCode) {
             return keys[keyCode] ? 1 : 0;
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Avança o contador de tiro e, a cada PLAYER_FIRE_INTERVAL quadros, consulta
          * espaço para o jogador 1 e o botão esquerdo do mouse para o jogador 2.
          */
->>>>>>> 1c870c6 (test)
         private void updatePlayerAttacks() {
             fireTick++;
             if (fireTick % PLAYER_FIRE_INTERVAL != 0) {
@@ -645,10 +515,7 @@ public class BulletHellGame extends JFrame {
             fire(playerTwo, mouseButtons[0]);
         }
 
-<<<<<<< HEAD
-=======
         /** Se o botão de tiro está ativo, pede um projétil ao Fighter e registra quem o disparou. */
->>>>>>> 1c870c6 (test)
         private void fire(Fighter fighter, boolean fireButtonDown) {
             if (!fireButtonDown) {
                 return;
@@ -656,11 +523,6 @@ public class BulletHellGame extends JFrame {
             Projectile projectile = fighter.fire();
             if (projectile != null) {
                 projectiles.add(projectile);
-<<<<<<< HEAD
-            }
-        }
-
-=======
                 projectileOwners.put(projectile, fighter);
             }
         }
@@ -669,7 +531,6 @@ public class BulletHellGame extends JFrame {
          * Consulta o contrato BossBehavior do chefe e chama sua rotina própria com o
          * alvo escolhido; chefes sem esse contrato não executam ataques personalizados.
          */
->>>>>>> 1c870c6 (test)
         private void updateBossAttacks(Boss boss) {
             if (boss instanceof BossBehavior) {
                 BossBehavior behavior = (BossBehavior) boss;
@@ -677,10 +538,7 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-=======
         /** Mede a distância de cada jogador até o chefe e aplica dano aos que estão no raio. */
->>>>>>> 1c870c6 (test)
         private void hitPlayersInRadius(Boss boss, double radius, boolean shieldPiercing) {
             if (Math.hypot(playerOne.centerX() - boss.x(), playerOne.centerY() - boss.y()) <= radius) {
                 applyPlayerDamage(playerOne, shieldPiercing);
@@ -690,13 +548,10 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Ignora impactos durante invulnerabilidade; caso contrário aplica dano, ativa
          * tremor de tela e cria uma explosão quando receiveHit confirma a morte.
          */
->>>>>>> 1c870c6 (test)
         private void applyPlayerDamage(Fighter fighter, boolean shieldPiercing) {
             if (!fighter.canReceiveHit()) {
                 return;
@@ -712,13 +567,10 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Retorna o único jogador vivo, se houver. Com ambos vivos alterna o alvo a cada
          * 45 quadros; durante o terceiro chefe escolhe quem causou mais dano a ele.
          */
->>>>>>> 1c870c6 (test)
         private Fighter chooseTarget(int tick) {
             if (!playerOne.isAlive()) {
                 return playerTwo;
@@ -726,11 +578,6 @@ public class BulletHellGame extends JFrame {
             if (!playerTwo.isAlive()) {
                 return playerOne;
             }
-<<<<<<< HEAD
-            return (tick / 45) % 2 == 0 ? playerOne : playerTwo;
-        }
-
-=======
             if (bossIndex == 2) {
                 return playerOneBossDamage >= playerTwoBossDamage ? playerOne : playerTwo;
             }
@@ -742,7 +589,6 @@ public class BulletHellGame extends JFrame {
          * spread. Cada direção vira um Projectile com as propriedades de divisão e verdade
          * recebidas; os projéteis são acrescentados à lista que updateProjectiles percorre.
          */
->>>>>>> 1c870c6 (test)
         private void shootFan(Boss boss, Fighter target, int count, double spread,
                               boolean splits, boolean changesTruth, double speed, Color color) {
             double dx = target.centerX() - boss.x();
@@ -759,13 +605,10 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Divide 2π por count, cria um projétil em cada ângulo e o adiciona à lista ativa.
          * É usado pelos chefes para ataques circulares independentes da posição dos jogadores.
          */
->>>>>>> 1c870c6 (test)
         private void shootRadial(Boss boss, int count, double speed, Color color) {
             for (int index = 0; index < count; index++) {
                 double angle = Math.PI * 2 * index / count;
@@ -776,11 +619,6 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-        private void updateProjectiles(Boss boss) {
-            Iterator<Projectile> iterator = projectiles.iterator();
-            List<Projectile> splitProjectiles = new ArrayList<>();
-=======
         /**
          * Percorre os projéteis com Iterator para poder removê-los com segurança. Atualiza
          * posição, elimina os que saíram da tela, troca projéteis divididos por oito novos,
@@ -790,28 +628,21 @@ public class BulletHellGame extends JFrame {
             Iterator<Projectile> iterator = projectiles.iterator();
             // A lista temporária só é necessária nos quadros em que um projétil se divide.
             List<Projectile> splitProjectiles = null;
->>>>>>> 1c870c6 (test)
 
             while (iterator.hasNext()) {
                 Projectile projectile = iterator.next();
                 projectile.update();
 
                 if (projectile.outside(WIDTH, HEIGHT)) {
-<<<<<<< HEAD
-=======
                     projectileOwners.remove(projectile);
->>>>>>> 1c870c6 (test)
                     iterator.remove();
                     continue;
                 }
 
                 if (projectile.consumeSplitReady()) {
-<<<<<<< HEAD
-=======
                     if (splitProjectiles == null) {
                         splitProjectiles = new ArrayList<>(8);
                     }
->>>>>>> 1c870c6 (test)
                     addSplitProjectiles(projectile, splitProjectiles);
                     iterator.remove();
                     continue;
@@ -820,15 +651,12 @@ public class BulletHellGame extends JFrame {
                 if (!projectile.fromBoss() && !boss.defeated()
                         && Math.hypot(projectile.x() - boss.x(), projectile.y() - boss.y()) < 35) {
                     boss.damage();
-<<<<<<< HEAD
-=======
                     Fighter owner = projectileOwners.remove(projectile);
                     if (owner == playerOne) {
                         playerOneBossDamage++;
                     } else if (owner == playerTwo) {
                         playerTwoBossDamage++;
                     }
->>>>>>> 1c870c6 (test)
                     registerBossHit();
                     iterator.remove();
                     continue;
@@ -843,18 +671,12 @@ public class BulletHellGame extends JFrame {
                 }
             }
 
-<<<<<<< HEAD
-            projectiles.addAll(splitProjectiles);
-        }
-
-=======
             if (splitProjectiles != null) {
                 projectiles.addAll(splitProjectiles);
             }
         }
 
         /** Registra o instante do acerto, inicia/continua o combo e soma pontos proporcionais a ele. */
->>>>>>> 1c870c6 (test)
         private void registerBossHit() {
             long now = System.currentTimeMillis();
             combo = now - lastComboAt <= 1800 ? combo + 1 : 1;
@@ -862,13 +684,10 @@ public class BulletHellGame extends JFrame {
             score += 10 + Math.min(combo, 20);
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Cria oito trajetórias igualmente espaçadas a partir da posição do projétil original
          * e as guarda na lista temporária, evitando modificar projectiles durante sua iteração.
          */
->>>>>>> 1c870c6 (test)
         private void addSplitProjectiles(Projectile source, List<Projectile> destination) {
             for (int index = 0; index < 8; index++) {
                 double angle = Math.PI * 2 * index / 8;
@@ -879,13 +698,10 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Compara a distância projétil-jogador com o raio de colisão. Retorna false sem alterar
          * o Iterator quando não há acerto; no acerto, aplica dano, remove o projétil e retorna true.
          */
->>>>>>> 1c870c6 (test)
         private boolean hitPlayer(Projectile projectile, Fighter fighter,
                                   Iterator<Projectile> iterator, boolean shieldPiercing) {
             if (!fighter.isAlive()
@@ -900,13 +716,10 @@ public class BulletHellGame extends JFrame {
             return true;
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Não faz nada enquanto o chefe vive. Ao derrotá-lo, limpa projéteis e avança o índice;
          * registra vitória se era o último chefe ou muda para INTERMISSION e limpa controles.
          */
->>>>>>> 1c870c6 (test)
         private void advanceBoss(Boss boss) {
             if (!boss.defeated()) {
                 return;
@@ -914,14 +727,11 @@ public class BulletHellGame extends JFrame {
 
             bossIndex++;
             projectiles.clear();
-<<<<<<< HEAD
-=======
             projectileOwners.clear();
             if (bossIndex == 2) {
                 playerOneBossDamage = 0;
                 playerTwoBossDamage = 0;
             }
->>>>>>> 1c870c6 (test)
             if (bossIndex == bosses.length) {
                 runEndedAt = System.currentTimeMillis();
                 screen = Screen.VICTORY;
@@ -933,13 +743,10 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Valida tela e distância do jogador ao portal. Se ambas forem válidas, retoma PLAYING,
          * prepara o aviso com o nome do próximo chefe e limpa teclas para evitar movimento preso.
          */
->>>>>>> 1c870c6 (test)
         private void activatePortal(Fighter activator) {
             if (screen != Screen.INTERMISSION) {
                 return;
@@ -955,10 +762,7 @@ public class BulletHellGame extends JFrame {
             repaint();
         }
 
-<<<<<<< HEAD
-=======
         /** Atualiza cada explosão existente e apaga sua referência quando a animação termina. */
->>>>>>> 1c870c6 (test)
         private void updateExplosions() {
             if (playerOneExplosion != null) {
                 playerOneExplosion.update();
@@ -974,14 +778,11 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Pinta uma cópia do contexto gráfico: menu retorna após desenhar sua tela; nas demais
          * telas desenha cenário, portal/chefe, projéteis, jogadores, HUD, aviso e overlays nessa
          * ordem. A cópia é descartada ao final para não alterar o contexto do Swing.
          */
->>>>>>> 1c870c6 (test)
         @Override
         protected void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
@@ -999,11 +800,7 @@ public class BulletHellGame extends JFrame {
                 g.translate(offset, -offset / 2);
             }
             drawOverworld(g);
-<<<<<<< HEAD
-        if (isIntermissionScreen()) {
-=======
             if (isIntermissionScreen()) {
->>>>>>> 1c870c6 (test)
                 portal.draw(g, portal.isPlayerNear(playerOne, playerTwo));
             } else if (bossIndex < bosses.length) {
                 bosses[bossIndex].draw(g);
@@ -1040,23 +837,17 @@ public class BulletHellGame extends JFrame {
             g.dispose();
         }
 
-<<<<<<< HEAD
-=======
         /** Decide se paintComponent deve desenhar o portal nesta tela ou numa pausa do intervalo. */
->>>>>>> 1c870c6 (test)
         private boolean isIntermissionScreen() {
             return screen == Screen.INTERMISSION
                     || (screen == Screen.PAUSED && pausedFrom == Screen.INTERMISSION);
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Desenha o fundo do menu (imagem ou gradiente), aplica sombra para contraste,
          * renderiza título e botão. startButtonHovered escolhe as cores do gradiente;
          * o listener do mouse mantém esse estado atualizado.
          */
->>>>>>> 1c870c6 (test)
         private void drawMenu(Graphics2D g) {
             if (menuBackground != null) {
                 drawCover(g, menuBackground);
@@ -1066,15 +857,6 @@ public class BulletHellGame extends JFrame {
                 g.fillRect(0, 0, WIDTH, HEIGHT);
             }
 
-<<<<<<< HEAD
-            g.setFont(new Font("SansSerif", Font.BOLD, 30));
-            g.setColor(startButtonHovered ? new Color(100, 235, 255) : Color.WHITE);
-            String label = "START";
-            g.drawString(label, START_BUTTON.x + (START_BUTTON.width
-                    - g.getFontMetrics().stringWidth(label)) / 2, START_BUTTON.y + 40);
-        }
-
-=======
             // Escurece levemente a imagem para dar contraste sem substituir o fundo original.
             g.setPaint(new GradientPaint(0, 0, new Color(5, 12, 32, 175),
                     0, HEIGHT, new Color(8, 18, 35, 75)));
@@ -1123,7 +905,6 @@ public class BulletHellGame extends JFrame {
          * @param g contexto gráfico do painel
          * @param image imagem a ajustar
          */
->>>>>>> 1c870c6 (test)
         private void drawCover(Graphics2D g, BufferedImage image) {
             double scale = Math.max((double) WIDTH / image.getWidth(),
                     (double) HEIGHT / image.getHeight());
@@ -1134,13 +915,10 @@ public class BulletHellGame extends JFrame {
             g.drawImage(image, x, y, drawWidth, drawHeight, null);
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Se existe um chefe ativo, desenha no cabeçalho seu índice/nome, tempo decorrido,
          * pontuação e combo. O tempo passa por formatTime e os textos ficam alinhados às bordas.
          */
->>>>>>> 1c870c6 (test)
         private void drawBattleHeader(Graphics2D g) {
             if (bossIndex >= bosses.length) {
                 return;
@@ -1158,25 +936,17 @@ public class BulletHellGame extends JFrame {
             g.drawString(stats, WIDTH - 18 - g.getFontMetrics().stringWidth(stats), 28);
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Desenha o aviso temporário de próximo chefe centralizado na parte superior da arena.
          * paintComponent chama este método enquanto o contador, reduzido em actionPerformed,
          * está ativo e a tela está em jogo. activatePortal define texto e duração; aqui a largura
          * da fonte calcula o X para centralizar a mensagem dentro do painel arredondado.
          */
->>>>>>> 1c870c6 (test)
         private void drawTransitionToast(Graphics2D g) {
             g.setColor(new Color(8, 15, 28, 205));
             g.fillRoundRect(184, 88, WIDTH - 368, 38, 14, 14);
             g.setColor(new Color(255, 225, 105));
             g.setFont(new Font("SansSerif", Font.BOLD, 15));
-<<<<<<< HEAD
-            g.drawString(transitionToast, WIDTH / 2 - g.getFontMetrics().stringWidth(transitionToast) / 2, 113);
-        }
-
-=======
             int textX = (WIDTH - g.getFontMetrics().stringWidth(transitionToast)) / 2;
             g.drawString(transitionToast, textX, 113);
         }
@@ -1186,7 +956,6 @@ public class BulletHellGame extends JFrame {
          * já desenhado e centraliza o título recebido; só na vitória acrescenta tempo da partida
          * e melhor tempo da sessão. Não muda o estado do jogo, apenas desenha a camada superior.
          */
->>>>>>> 1c870c6 (test)
         private void drawOverlay(Graphics2D g, String title) {
             g.setColor(new Color(0, 0, 0, 190));
             g.fillRect(0, 0, WIDTH, HEIGHT);
@@ -1194,20 +963,6 @@ public class BulletHellGame extends JFrame {
             g.setFont(new Font("SansSerif", Font.BOLD, 38));
             g.drawString(title, WIDTH / 2 - g.getFontMetrics().stringWidth(title) / 2, HEIGHT / 2 - 10);
             if (screen == Screen.VICTORY) {
-<<<<<<< HEAD
-                String record = "TEMPO: " + formatTime(elapsedMillis())
-                        + "  •  MELHOR: " + formatTime(bestClearTimeMillis);
-                g.drawString(record, WIDTH / 2 - g.getFontMetrics().stringWidth(record) / 2,
-                        HEIGHT / 2 + 54);
-            }
-        }
-
-        private String formatTime(long millis) {
-            long seconds = Math.max(0, millis) / 1000;
-            return String.format("%02d:%02d", seconds / 60, seconds % 60);
-        }
-
-=======
                 String result = "TEMPO: " + formatTime(elapsedMillis())
                         + "  •  MELHOR: " + formatTime(bestClearTimeMillis);
                 int resultX = (WIDTH - g.getFontMetrics().stringWidth(result)) / 2;
@@ -1231,7 +986,6 @@ public class BulletHellGame extends JFrame {
         }
 
         /** Cria o fundo e a borda do HUD inferior e delega os indicadores a cada Fighter. */
->>>>>>> 1c870c6 (test)
         private void drawHud(Graphics2D g) {
             int top = HEIGHT - HUD_HEIGHT + 7;
             g.setColor(new Color(15, 24, 25, 225));
@@ -1242,13 +996,10 @@ public class BulletHellGame extends JFrame {
             drawPlayerHud(g, 410, top + 19, "P2", playerTwo);
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Usa os dados do Fighter para desenhar vidas, escudos disponíveis/em recarga e a
          * barra de stamina. x/y definem a origem do bloco; label identifica P1 ou P2.
          */
->>>>>>> 1c870c6 (test)
         private void drawPlayerHud(Graphics2D g, int x, int y, String label, Fighter fighter) {
             g.setFont(new Font("SansSerif", Font.BOLD, 13));
             g.setColor(fighter.color());
@@ -1294,13 +1045,10 @@ public class BulletHellGame extends JFrame {
             g.drawRoundRect(barX, barY, barWidth, 10, 8, 8);
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Desenha a imagem de cenário em toda a janela; se o recurso não foi carregado,
          * monta um campo verde quadriculado simples para que a partida ainda seja jogável.
          */
->>>>>>> 1c870c6 (test)
         private void drawOverworld(Graphics2D g) {
             if (background != null) {
                 g.drawImage(background, 0, 0, WIDTH, HEIGHT, null);
@@ -1319,10 +1067,7 @@ public class BulletHellGame extends JFrame {
             g.fillRect(0, 38, WIDTH, 3);
         }
 
-<<<<<<< HEAD
-=======
         /** Retorna os quatro chefes na ordem da partida; resetMatch cria novas instâncias. */
->>>>>>> 1c870c6 (test)
         private static Boss[] createBosses() {
             return new Boss[] {
                     new HerancaBoss(),
@@ -1333,13 +1078,6 @@ public class BulletHellGame extends JFrame {
         }
     }
 
-<<<<<<< HEAD
-    /** Cada chefe define seu próprio padrão de combate por polimorfismo. */
-    private interface BossBehavior {
-        void updateBehavior(BulletHellGame.GamePanel game, Fighter target);
-    }
-
-=======
     /** Contrato que permite ao painel executar os ataques próprios de cada chefe. */
     private interface BossBehavior {
         /** Recebe o painel para criar ataques e o alvo selecionado para este quadro. */
@@ -1347,23 +1085,16 @@ public class BulletHellGame extends JFrame {
     }
 
     /** Chefe 1: alterna entre tiro que se divide e pequena rajada em leque. */
->>>>>>> 1c870c6 (test)
     private static class HerancaBoss extends Boss implements BossBehavior {
         private int attackFrame;
         private int volleyIndex;
 
-<<<<<<< HEAD
-=======
         /** Inicializa identidade, cor e total de vida do primeiro chefe. */
->>>>>>> 1c870c6 (test)
         HerancaBoss() {
             super("HERANÇA", "O Descendente", new Color(70, 190, 100), 18);
         }
 
-<<<<<<< HEAD
-=======
         /** Alterna os padrões de ataque após cada intervalo de 105 quadros. */
->>>>>>> 1c870c6 (test)
         @Override
         public void updateBehavior(BulletHellGame.GamePanel game, Fighter target) {
             if (++attackFrame < 105) {
@@ -1381,48 +1112,16 @@ public class BulletHellGame extends JFrame {
         }
     }
 
-<<<<<<< HEAD
-    private static class PolimorfismoBoss extends Boss implements BossBehavior {
-        private static final int VOLLEY_INTERVAL = 21;
-        private static final double ORBIT_WIDTH = 92;
-        private static final double ORBIT_HEIGHT = 48;
-        private static final double MIN_MOVEMENT_SPEED = 0.003;
-        private static final double MAX_MOVEMENT_SPEED = 0.075;
-
-        private int frame;
-        private double angle;
-        private double positionX = GamePanel.ARENA_CENTER_X;
-        private double positionY = GamePanel.ARENA_CENTER_Y;
-
-=======
     /** Chefe 2: fica no centro e aumenta levemente os tiros abaixo de 75% de vida. */
     private static class PolimorfismoBoss extends Boss implements BossBehavior {
         private static final int VOLLEY_INTERVAL = 30;
         private int frame;
 
         /** Inicializa o chefe centralizado e seu relógio de ataques. */
->>>>>>> 1c870c6 (test)
         PolimorfismoBoss() {
             super("POLIMORFISMO", "O Mutante", new Color(230, 75, 75), 23);
         }
 
-<<<<<<< HEAD
-        /** Orbita o centro; a velocidade aumenta conforme a vida diminui. */
-        @Override
-        public void update(int width) {
-            frame++;
-            double lifeLostRatio = 1.0 - (double) hp() / maxHp();
-            double movementSpeed = MIN_MOVEMENT_SPEED
-                    + (MAX_MOVEMENT_SPEED - MIN_MOVEMENT_SPEED) * lifeLostRatio;
-            angle += movementSpeed;
-
-            double centerX = GamePanel.ARENA_CENTER_X;
-            double centerY = GamePanel.ARENA_CENTER_Y;
-            positionX = centerX + Math.sin(angle) * ORBIT_WIDTH;
-            positionY = centerY + Math.sin(angle * 1.7) * ORBIT_HEIGHT;
-        }
-
-=======
         /** Avança o relógio próprio sem alterar a posição fixa no centro da arena. */
         @Override
         public void update(int width) {
@@ -1430,24 +1129,11 @@ public class BulletHellGame extends JFrame {
         }
 
         /** Devolve o relógio local usado para sincronizar animação e rajadas. */
->>>>>>> 1c870c6 (test)
         @Override
         public int tick() {
             return frame;
         }
 
-<<<<<<< HEAD
-        @Override
-        public double x() {
-            return positionX;
-        }
-
-        @Override
-        public double y() {
-            return positionY;
-        }
-
-=======
         /** Fixa a coordenada horizontal do chefe no centro da arena. */
         @Override
         public double x() {
@@ -1461,7 +1147,6 @@ public class BulletHellGame extends JFrame {
         }
 
         /** Desenha a forma animada, o nome e a barra de vida do chefe. */
->>>>>>> 1c870c6 (test)
         @Override
         public void draw(Graphics2D g) {
             int radius = 31;
@@ -1489,16 +1174,6 @@ public class BulletHellGame extends JFrame {
             g.fillRect((int) x() - 40, (int) y() + 38, 80 * hp() / maxHp(), 7);
         }
 
-<<<<<<< HEAD
-        @Override
-        public void updateBehavior(BulletHellGame.GamePanel game, Fighter target) {
-            if (frame % VOLLEY_INTERVAL == 0) {
-                game.shootFan(this, target, 9, 1.35, false, true,
-                        4.15, new Color(255, 75, 100));
-            }
-            if (frame > 0 && frame % (VOLLEY_INTERVAL * 3) == 0) {
-                game.shootRadial(this, 12, 3.8, new Color(190, 75, 255));
-=======
         /** Dispara o leque periódico e uma rajada radial menos frequente. */
         @Override
         public void updateBehavior(BulletHellGame.GamePanel game, Fighter target) {
@@ -1509,37 +1184,25 @@ public class BulletHellGame extends JFrame {
             }
             if (frame > 0 && frame % (VOLLEY_INTERVAL * 4) == 0) {
                 game.shootRadial(this, 10, shotSpeed - 0.2, new Color(190, 75, 255));
->>>>>>> 1c870c6 (test)
             }
         }
     }
 
-<<<<<<< HEAD
-=======
     /** Chefe 3: persegue o jogador prioritário e prepara ataques de contato. */
->>>>>>> 1c870c6 (test)
     private static class EncapsulamentoBoss extends Boss implements BossBehavior {
         private static final int MELEE_RADIUS = 126;
         private static final int WINDUP_FRAMES = 24;
         private static final int COOLDOWN_FRAMES = 84;
         private int cooldown = COOLDOWN_FRAMES;
         private int windup;
-<<<<<<< HEAD
-
-=======
         private double positionX = GamePanel.ARENA_CENTER_X;
         private double positionY = GamePanel.ARENA_CENTER_Y;
 
         /** Inicializa o chefe perseguidor no centro e configura o primeiro ciclo de ataque. */
->>>>>>> 1c870c6 (test)
         EncapsulamentoBoss() {
             super("ENCAPSULAMENTO", "A Caixa Selada", new Color(125, 175, 255), 28);
         }
 
-<<<<<<< HEAD
-        @Override
-        public void updateBehavior(BulletHellGame.GamePanel game, Fighter target) {
-=======
         /** Retorna a coordenada horizontal atualizada pela perseguição ao alvo. */
         @Override
         public double x() {
@@ -1565,7 +1228,6 @@ public class BulletHellGame extends JFrame {
                 positionY = Math.max(GamePanel.ARENA_TOP + 35,
                         Math.min(GamePanel.ARENA_BOTTOM - 35, positionY + dy / distance * step));
             }
->>>>>>> 1c870c6 (test)
             if (windup > 0) {
                 windup--;
                 if (windup == 0) {
@@ -1582,11 +1244,6 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-        @Override
-        public void draw(Graphics2D g) {
-            super.draw(g);
-=======
         /** Destaca o chefe e mostra o alcance crescente enquanto prepara o golpe. */
         @Override
         public void draw(Graphics2D g) {
@@ -1603,7 +1260,6 @@ public class BulletHellGame extends JFrame {
             g.setColor(new Color(235, 250, 255, 230));
             g.setStroke(new BasicStroke(2.0f));
             g.drawOval(centerX - 33, centerY - 33, 66, 66);
->>>>>>> 1c870c6 (test)
             if (windup <= 0) {
                 return;
             }
@@ -1619,25 +1275,16 @@ public class BulletHellGame extends JFrame {
         }
     }
 
-<<<<<<< HEAD
-    private static class AbstracaoBoss extends Boss implements BossBehavior {
-        private int attackFrame;
-
-=======
     /** Chefe 4: combina disparos direcionados ao alvo com rajadas radiais. */
     private static class AbstracaoBoss extends Boss implements BossBehavior {
         private int attackFrame;
 
         /** Inicializa identidade, aparência e vida do chefe final. */
->>>>>>> 1c870c6 (test)
         AbstracaoBoss() {
             super("ABSTRAÇÃO", "O Molde Antigo", new Color(235, 170, 55), 32);
         }
 
-<<<<<<< HEAD
-=======
         /** Emite o leque a cada 25 quadros e a rajada radial a cada 50. */
->>>>>>> 1c870c6 (test)
         @Override
         public void updateBehavior(BulletHellGame.GamePanel game, Fighter target) {
             attackFrame++;
@@ -1651,11 +1298,7 @@ public class BulletHellGame extends JFrame {
         }
     }
 
-<<<<<<< HEAD
-    /** Portal azul usado para avançar entre os chefes. */
-=======
     /** Portal azul que inicia o próximo chefe quando um jogador chega perto. */
->>>>>>> 1c870c6 (test)
     private static class Portal {
         private static final int DRAW_HEIGHT = 108;
         private static final double INTERACTION_RADIUS = 62;
@@ -1666,10 +1309,7 @@ public class BulletHellGame extends JFrame {
         private final Rectangle visibleBounds;
         private int animationTick;
 
-<<<<<<< HEAD
-=======
         /** Guarda centro e imagem e calcula uma vez a área visível da imagem transparente. */
->>>>>>> 1c870c6 (test)
         Portal(int centerX, int centerY, BufferedImage image) {
             this.centerX = centerX;
             this.centerY = centerY;
@@ -1677,36 +1317,24 @@ public class BulletHellGame extends JFrame {
             visibleBounds = findVisibleBounds(image);
         }
 
-<<<<<<< HEAD
-=======
         /** Avança o relógio que controla a pulsação visual do portal. */
->>>>>>> 1c870c6 (test)
         void update() {
             animationTick++;
         }
 
-<<<<<<< HEAD
-=======
         /** Verifica se um jogador vivo está dentro do raio de interação do portal. */
->>>>>>> 1c870c6 (test)
         boolean isPlayerNear(Fighter fighter) {
             return fighter.isAlive()
                     && Math.hypot(fighter.centerX() - centerX, fighter.centerY() - centerY)
                     <= INTERACTION_RADIUS;
         }
 
-<<<<<<< HEAD
-=======
         /** Retorna true se pelo menos um jogador puder alcançar o portal. */
->>>>>>> 1c870c6 (test)
         boolean isPlayerNear(Fighter first, Fighter second) {
             return isPlayerNear(first) || isPlayerNear(second);
         }
 
-<<<<<<< HEAD
-=======
         /** Desenha o brilho pulsante e a imagem do portal, com forma vetorial de reserva. */
->>>>>>> 1c870c6 (test)
         void draw(Graphics2D g, boolean playerNearby) {
             float pulse = (float) ((Math.sin(animationTick * 0.09) + 1) / 2);
             int alpha = playerNearby ? 55 + (int) (75 * pulse) : 24 + (int) (40 * pulse);
@@ -1733,14 +1361,11 @@ public class BulletHellGame extends JFrame {
                     visibleBounds.y + visibleBounds.height, null);
         }
 
-<<<<<<< HEAD
-=======
         /** Encontra a área não transparente para remover margens vazias ao desenhar o portal. */
         /**
          * Varre os pixels da imagem e encontra o retângulo cujo alpha é maior que 8.
          * Portal.draw usa essa área para dimensionar o desenho sem margens transparentes.
          */
->>>>>>> 1c870c6 (test)
         private Rectangle findVisibleBounds(BufferedImage source) {
             if (source == null) {
                 return null;
@@ -1766,11 +1391,7 @@ public class BulletHellGame extends JFrame {
         }
     }
 
-<<<<<<< HEAD
-    /** Estado e ações de um personagem, separado da coordenação da interface. */
-=======
     /** Mantém estado, movimento, ataques e desenho de um jogador. */
->>>>>>> 1c870c6 (test)
     private static class Fighter {
         private static final int MAX_LIVES = 5;
         private static final int MAX_SHIELDS = 3;
@@ -1794,23 +1415,17 @@ public class BulletHellGame extends JFrame {
         private double aimY = -1;
         private boolean rechargingStamina;
 
-<<<<<<< HEAD
-=======
         /** Cria o personagem visual e guarda sua posição inicial para reinícios. */
->>>>>>> 1c870c6 (test)
         Fighter(int x, int y, Color color) {
             character = new Player(x, y, color);
             startX = x;
             startY = y;
         }
 
-<<<<<<< HEAD
-=======
         /**
          * Chamado a cada quadro: reduz invulnerabilidade e delega recargas de escudo e stamina
          * aos métodos responsáveis por cada contador.
          */
->>>>>>> 1c870c6 (test)
         void update() {
             if (invulnerabilityFrames > 0) {
                 invulnerabilityFrames--;
@@ -1819,10 +1434,7 @@ public class BulletHellGame extends JFrame {
             updateStaminaRecharge();
         }
 
-<<<<<<< HEAD
-=======
         /** Recarrega um escudo por vez após o atraso configurado desde o último golpe. */
->>>>>>> 1c870c6 (test)
         private void updateShieldRecharge() {
             if (isDead() || shields == MAX_SHIELDS || shieldRechargeFrames <= 0) {
                 return;
@@ -1840,10 +1452,7 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-=======
         /** Recupera stamina gradualmente após o jogador esgotar a barra ao atirar. */
->>>>>>> 1c870c6 (test)
         private void updateStaminaRecharge() {
             if (!rechargingStamina) {
                 return;
@@ -1854,24 +1463,6 @@ public class BulletHellGame extends JFrame {
             }
         }
 
-<<<<<<< HEAD
-        void move(double dx, double dy, int speed,
-                  int minX, int minY, int maxX, int maxY) {
-            if (!isAlive()) {
-                return;
-            }
-            if (dx != 0 || dy != 0) {
-                double length = Math.hypot(dx, dy);
-                aimX = dx / length;
-                aimY = dy / length;
-            }
-            if (dx != 0 || dy != 0) {
-                character.move(aimX * speed, aimY * speed,
-                        minX, minY, maxX, maxY);
-            }
-        }
-
-=======
         /** Normaliza a direção, atualiza a mira e move o personagem dentro dos limites. */
         void move(double dx, double dy, int speed,
                   int minX, int minY, int maxX, int maxY) {
@@ -1885,7 +1476,6 @@ public class BulletHellGame extends JFrame {
         }
 
         /** Consome stamina e cria um tiro na direção da última mira; retorna null se indisponível. */
->>>>>>> 1c870c6 (test)
         Projectile fire() {
             if (!isAlive() || rechargingStamina || stamina < SHOT_STAMINA_COST) {
                 return null;
@@ -1901,11 +1491,7 @@ public class BulletHellGame extends JFrame {
                     8.5, false, color(), 5);
         }
 
-<<<<<<< HEAD
-        /** Retorna true quando o golpe remove a última vida do personagem. */
-=======
         /** Reduz escudo ou vida, inicia invulnerabilidade e informa se esse golpe foi fatal. */
->>>>>>> 1c870c6 (test)
         boolean receiveHit(boolean shieldPiercing) {
             if (!canReceiveHit()) {
                 return false;
@@ -1924,18 +1510,12 @@ public class BulletHellGame extends JFrame {
             return isDead();
         }
 
-<<<<<<< HEAD
-=======
         /** Impede dano quando o jogador morreu ou ainda está invulnerável. */
->>>>>>> 1c870c6 (test)
         boolean canReceiveHit() {
             return isAlive() && invulnerabilityFrames == 0;
         }
 
-<<<<<<< HEAD
-=======
         /** Reposiciona o jogador e restaura vidas, escudos, mira e stamina. */
->>>>>>> 1c870c6 (test)
         void reset() {
             double currentX = centerX() - PLAYER_SIZE / 2.0;
             double currentY = centerY() - PLAYER_SIZE / 2.0;
@@ -1953,10 +1533,7 @@ public class BulletHellGame extends JFrame {
             rechargingStamina = false;
         }
 
-<<<<<<< HEAD
-=======
         /** Desenha escudo e personagem, piscando enquanto o jogador está invulnerável. */
->>>>>>> 1c870c6 (test)
         void draw(Graphics2D g) {
             if (isDead() || (invulnerabilityFrames > 0 && (invulnerabilityFrames / 4) % 2 == 0)) {
                 return;
@@ -1975,17 +1552,6 @@ public class BulletHellGame extends JFrame {
             character.draw(g);
         }
 
-<<<<<<< HEAD
-        boolean isAlive() { return lives > 0; }
-        boolean isDead() { return lives <= 0; }
-        int lives() { return lives; }
-        int shields() { return shields; }
-        double stamina() { return stamina; }
-        Color color() { return character.getColor(); }
-        double centerX() { return character.centerX(); }
-        double centerY() { return character.centerY(); }
-
-=======
         /** Indica se ainda há pelo menos uma vida. */
         boolean isAlive() { return lives > 0; }
         /** Indica se as vidas chegaram a zero ou menos. */
@@ -2004,7 +1570,6 @@ public class BulletHellGame extends JFrame {
         double centerY() { return character.centerY(); }
 
         /** Calcula a fração de recarga do próximo escudo para preencher o indicador do HUD. */
->>>>>>> 1c870c6 (test)
         double shieldRegenerationProgress() {
             if (shields == MAX_SHIELDS || shieldRechargePeriod == 0) {
                 return 0;
