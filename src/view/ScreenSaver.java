@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 
 import model.*;
@@ -61,7 +62,8 @@ public class ScreenSaver extends JFrame {
         ** ↓ Declare suas formas aqui ↓ **
         *********************************/
         
-        Player p1;
+        Player p1, p2;
+        ArrayList<Projectile> projectiles;
 
 
         
@@ -148,8 +150,9 @@ public class ScreenSaver extends JFrame {
                 System.out.println("nun carrego o background");
             }
 
-            p1 = new Player( 100, 100, new Color(255,0,0));
-
+            p1 = new Player( 200, 450, new Color(255,0,0));
+            p2 = new Player( 600, 450, new Color(0,0,255));
+            projectiles = new ArrayList<Projectile>();
 
             this.timer = new Timer(DELAY_MS, this);
         }
@@ -186,9 +189,38 @@ public class ScreenSaver extends JFrame {
             if (d) {
                 p1.move(3, 0, 50, 75, 750, 525);
             }
+            if (up) {
+                p2.move(0, -3, 50, 75, 750, 525);
+            }
+            if (left) {
+                p2.move(-3, 0, 50, 75, 750, 525);
+            }
+            if (down) {
+                p2.move(0, 3, 50, 75, 750, 525);
+            }
+            if (right) {
+                p2.move(3, 0, 50, 75, 750, 525);
+            }
+            if (shift) {
+                if (p1.canShoot()) {
+                    projectiles.add(p1.fire());
+                }
+            }
+            if (space) {
+                if (p2.canShoot()) {
+                    projectiles.add(p2.fire());
+                }
+            }
 
 
-
+            for (int i = 0; i < projectiles.size(); i++) {
+                Projectile proj = projectiles.get(i);
+                proj.update();
+                if (proj.outside(CANVAS_WIDTH, CANVAS_HEIGHT)) {
+                    projectiles.remove(i);
+                    i--; // Ajusta o índice após a remoção
+                }
+            }
 
             this.repaint();
         }
@@ -207,7 +239,10 @@ public class ScreenSaver extends JFrame {
             //bordas: 50x, 75y, 750w, 525h
             g2d.drawImage(background, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, null);
             p1.draw(g2d);
-
+            p2.draw(g2d);
+            for (Projectile proj : projectiles) {
+                proj.draw(g2d);
+            }
 
         }
     }

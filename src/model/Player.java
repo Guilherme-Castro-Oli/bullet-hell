@@ -14,6 +14,9 @@ public class Player {
     // final significa que cor, tamanho e nome são definidos na criação do jogador.
     private final Color color;
     private final int size = 22;
+    public int health = 5;
+    private double aimX, aimY;
+    private int cooldown = 0;
 
     /** Cria um jogador na posição indicada e com uma cor fácil de reconhecer. */
     public Player(int x, int y, Color color) {
@@ -28,6 +31,7 @@ public class Player {
      * qualquer parte do quadrado ultrapasse suas bordas.
      */
     public void move(double dx, double dy, int minx, int miny, int maxx, int maxy) {
+        aimX = dx; aimY = dy;
         // Math.min limita o máximo e Math.max limita o mínimo da coordenada.
         x = Math.max(minx, Math.min(maxx - size, x + dx));
         // A coordenada 40 deixa livre a faixa superior usada pelo HUD.
@@ -42,8 +46,28 @@ public class Player {
         g.drawRect((int)x, (int)y, size, size);
     }
 
+    /** Consome stamina e cria um tiro na direção da última mira; retorna null se indisponível. */
+    public Projectile fire() {
+        if (health <= 0) {
+            return null;
+        }
+
+        return new Projectile(
+            centerX(), centerY(), aimX, aimY, false, 
+            new Color(244,131,38), 5);
+    }
+
+    public boolean canShoot() {
+        cooldown++;
+        if (cooldown > 7) {
+            cooldown = 0;
+            return true;
+        }
+        return false;
+    }
+
     // Os tiros partem do centro do quadrado, não de um de seus cantos.
-    public double centerX() { return x + size / 2.0; }
-    public double centerY() { return y + size / 2.0; }
+    public double centerX() { return x + (size / 2.0); }
+    public double centerY() { return y + (size / 2.0); }
     public Color getColor() { return color; }
 }
