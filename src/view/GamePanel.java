@@ -589,6 +589,33 @@ class GamePanel extends JPanel implements ActionListener {
         }
     }
 
+    /** Rajada em faixa: os projéteis seguem paralelos, sem formar leque ou círculo. */
+    void shootAbstractLane(double originX, double originY, boolean horizontal) {
+        for (int index = -3; index <= 3; index++) {
+            double startX = horizontal ? originX - 190 : originX + index * 24;
+            double startY = horizontal ? originY + index * 24 : originY - 150;
+            double aimX = horizontal ? originX + 300 : startX;
+            double aimY = horizontal ? startY : originY + 190;
+            projectiles.add(new Projectile(startX, startY, aimX, aimY,
+                    2.9, true, new Color(205, 125, 255), 6));
+        }
+    }
+
+    /** Poder especial: os clones projetam cortinas paralelas que cruzam a arena em grade. */
+    void shootAbstractLattice(double leftX, double rightY) {
+        int lanes = 9;
+        for (int index = 0; index < lanes; index++) {
+            double fraction = index / (double) (lanes - 1);
+            double y = ARENA_TOP + fraction * (ARENA_BOTTOM - ARENA_TOP);
+            projectiles.add(new Projectile(leftX, y, ARENA_RIGHT, y,
+                    2.5, true, new Color(220, 150, 255), 7));
+
+            double x = ARENA_LEFT + fraction * (ARENA_RIGHT - ARENA_LEFT);
+            projectiles.add(new Projectile(x, rightY, x, ARENA_BOTTOM,
+                    2.5, true, new Color(150, 210, 255), 7));
+        }
+    }
+
     /**
      * Percorre os projéteis com Iterator para poder removê-los com segurança. Atualiza
      * posição, elimina os que saíram da tela, troca projéteis divididos por oito novos,
@@ -618,16 +645,24 @@ class GamePanel extends JPanel implements ActionListener {
                 continue;
             }
 
-            if (!projectile.fromBoss() && !boss.defeated()
-                    && Math.hypot(projectile.x() - boss.x(), projectile.y() - boss.y()) < 35) {
-                boss.damage();
-                Fighter owner = projectileOwners.remove(projectile);
-                if (owner == playerOne) {
-                    playerOneBossDamage++;
-                } else if (owner == playerTwo) {
-                    playerTwoBossDamage++;
+            boolean hitBoss = boss instanceof AbstracaoBoss
+                    ? ((AbstracaoBoss) boss).isHitAt(projectile.x(), projectile.y())
+                    : Math.hypot(projectile.x() - boss.x(), projectile.y() - boss.y()) < 35;
+            if (!projectile.fromBoss() && !boss.defeated() && hitBoss) {
+                boolean hitOriginal = !(boss instanceof AbstracaoBoss)
+                        || ((AbstracaoBoss) boss).isOriginalHitAt(projectile.x(), projectile.y());
+                if (hitOriginal) {
+                    boss.damage();
+                    Fighter owner = projectileOwners.remove(projectile);
+                    if (owner == playerOne) {
+                        playerOneBossDamage++;
+                    } else if (owner == playerTwo) {
+                        playerTwoBossDamage++;
+                    }
+                    registerBossHit();
+                } else {
+                    projectileOwners.remove(projectile);
                 }
-                registerBossHit();
                 iterator.remove();
                 continue;
             }
