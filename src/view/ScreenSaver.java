@@ -243,7 +243,20 @@ public class ScreenSaver extends JFrame {
             for (Projectile proj : projectiles) {
                 proj.draw(g2d);
             }
+            
 
+
+
+            /** Cria o fundo e a borda do HUD inferior e delega os indicadores a cada Fighter. */
+
+            int HUD_HEIGHT = 50;
+            int top = CANVAS_HEIGHT - HUD_HEIGHT + 7;
+            g.setColor(new Color(15, 24, 25, 225));
+            g.fillRoundRect(16, top, CANVAS_WIDTH - 32, HUD_HEIGHT - 14, 18, 18);
+            g.setColor(new Color(220, 230, 210, 120));
+            g.drawRoundRect(16, top, CANVAS_WIDTH - 32, HUD_HEIGHT - 14, 18, 18);
+            p1.drawPlayerHud(g2d, 30, top + 19, "P1");
+            p2.drawPlayerHud(g2d, 410, top + 19, "P2");
         }
     }
 }

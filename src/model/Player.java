@@ -2,6 +2,7 @@ package model;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Font;
 
 /**
  * Representa um jogador e guarda os dados que pertencem somente a ele.
@@ -15,6 +16,7 @@ public class Player {
     private final Color color;
     private final int size = 22;
     public int health = 5;
+    private int shields = 5;
     private double aimX, aimY;
     private int cooldown = 0;
 
@@ -64,6 +66,55 @@ public class Player {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Usa os dados do Fighter para desenhar vidas, escudos disponíveis/em recarga e a
+     * barra de stamina. x/y definem a origem do bloco; label identifica P1 ou P2.
+     */
+    public void drawPlayerHud(Graphics2D g, int x, int y, String label) {
+        g.setFont(new Font("SansSerif", Font.BOLD, 13));
+        g.setColor(color);
+        g.drawString(label, x, y);
+
+        g.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        g.setColor(new Color(235, 238, 228));
+        g.drawString("VIDA", x + 38, y);
+        for (int index = 0; index < 5; index++) {
+            int blockX = x + 72 + index * 15;
+            g.setColor(index < health ? color : new Color(75, 82, 80));
+            g.fillRoundRect(blockX, y - 10, 11, 9, 4, 4);
+        }
+
+        g.setColor(new Color(235, 238, 228));
+        g.drawString("ESCUDO", x + 152, y);
+        for (int index = 0; index < 5; index++) {
+            int blockX = x + 200 + index * 14;
+            g.setColor(new Color(45, 64, 67));
+            g.fillRoundRect(blockX, y - 10, 10, 9, 4, 4);
+            if (index < shields) {
+                g.setColor(new Color(80, 220, 255));
+                g.fillRoundRect(blockX, y - 10, 10, 9, 4, 4);
+            } else if (index == shields) {
+                int progress = (int) (10 * shieldRegenerationProgress());
+                if (progress > 0) {
+                    g.setColor(new Color(80, 220, 255, 190));
+                    g.fillRoundRect(blockX, y - 10, progress, 9, 4, 4);
+                }
+            }
+        }
+    }
+
+    /*AINDA NÃO FUNFA */
+    /** Calcula a fração de recarga do próximo escudo para preencher o indicador do HUD. */
+    double shieldRegenerationProgress() {
+        return 0;
+        /*
+        if (shields == 5 || shieldRechargePeriod == 0) {
+            return 0;
+        }
+        return Math.max(0, Math.min(1, 1.0 - (double) shieldRechargeFrames / shieldRechargePeriod));
+        */
     }
 
     // Os tiros partem do centro do quadrado, não de um de seus cantos.
