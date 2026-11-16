@@ -69,6 +69,12 @@ class GamePanel extends JPanel implements ActionListener {
     private int fireTick;
     private int playerOneBossDamage;
     private int playerTwoBossDamage;
+    private double previousPlayerOneX = Double.NaN;
+    private double previousPlayerOneY = Double.NaN;
+    private double previousPlayerTwoX = Double.NaN;
+    private double previousPlayerTwoY = Double.NaN;
+    private int playerOneStillFrames;
+    private int playerTwoStillFrames;
     private Explosion playerOneExplosion;
     private Explosion playerTwoExplosion;
     private Screen screen = Screen.MENU;
@@ -318,6 +324,12 @@ class GamePanel extends JPanel implements ActionListener {
         projectileOwners.clear();
         playerOneBossDamage = 0;
         playerTwoBossDamage = 0;
+        playerOneStillFrames = 0;
+        playerTwoStillFrames = 0;
+        previousPlayerOneX = Double.NaN;
+        previousPlayerOneY = Double.NaN;
+        previousPlayerTwoX = Double.NaN;
+        previousPlayerTwoY = Double.NaN;
         bosses = createBosses();
         bossIndex = 0;
         fireTick = 0;
@@ -503,17 +515,52 @@ class GamePanel extends JPanel implements ActionListener {
      */
     private void updateBossAttacks(Boss boss) {
         if (boss instanceof BossBehavior) {
+            updatePlayerStillFrames();
             BossBehavior behavior = (BossBehavior) boss;
             behavior.updateBehavior(this, chooseTarget(boss.tick()));
         }
     }
 
+    /** Conta separadamente os quadros em que cada jogador permanece praticamente imóvel. */
+    Fighter stationaryTarget() {
+        if (playerOneStillFrames >= 313 && playerOne.isAlive()) return playerOne;
+        if (playerTwoStillFrames >= 313 && playerTwo.isAlive()) return playerTwo;
+        return null;
+    }
+
+    private void updatePlayerStillFrames() {
+        double oneX = playerOne.centerX();
+        double oneY = playerOne.centerY();
+        double twoX = playerTwo.centerX();
+        double twoY = playerTwo.centerY();
+        if (Double.isNaN(previousPlayerOneX)) {
+            previousPlayerOneX = oneX;
+            previousPlayerOneY = oneY;
+            previousPlayerTwoX = twoX;
+            previousPlayerTwoY = twoY;
+            return;
+        }
+        playerOneStillFrames = Math.hypot(oneX - previousPlayerOneX,
+                oneY - previousPlayerOneY) < 0.75 ? playerOneStillFrames + 1 : 0;
+        playerTwoStillFrames = Math.hypot(twoX - previousPlayerTwoX,
+                twoY - previousPlayerTwoY) < 0.75 ? playerTwoStillFrames + 1 : 0;
+        previousPlayerOneX = oneX;
+        previousPlayerOneY = oneY;
+        previousPlayerTwoX = twoX;
+        previousPlayerTwoY = twoY;
+    }
+
     /** Mede a distância de cada jogador até o chefe e aplica dano aos que estão no raio. */
     void hitPlayersInRadius(Boss boss, double radius, boolean shieldPiercing) {
-        if (Math.hypot(playerOne.centerX() - boss.x(), playerOne.centerY() - boss.y()) <= radius) {
+        hitPlayersInRadiusAt(boss.x(), boss.y(), radius, shieldPiercing);
+    }
+
+    /** Aplica o golpe de área a partir de uma posição que pode pertencer a um clone. */
+    void hitPlayersInRadiusAt(double centerX, double centerY, double radius, boolean shieldPiercing) {
+        if (Math.hypot(playerOne.centerX() - centerX, playerOne.centerY() - centerY) <= radius) {
             applyPlayerDamage(playerOne, shieldPiercing);
         }
-        if (Math.hypot(playerTwo.centerX() - boss.x(), playerTwo.centerY() - boss.y()) <= radius) {
+        if (Math.hypot(playerTwo.centerX() - centerX, playerTwo.centerY() - centerY) <= radius) {
             applyPlayerDamage(playerTwo, shieldPiercing);
         }
     }

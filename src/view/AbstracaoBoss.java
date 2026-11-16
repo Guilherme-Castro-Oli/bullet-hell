@@ -5,16 +5,25 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.util.Random;
 
 /** Chefe que materializa cópias visuais com rotinas e trajetórias próprias. */
 class AbstracaoBoss extends Boss implements BossBehavior {
     private static final int CLONE_COUNT = 3;
     private static final int SPECIAL_POWER_FRAMES = 1_875; // 30 s a 16 ms por quadro
+    private static final int FIVE_SECONDS = 313;
+    private static final int MELEE_RADIUS = 126;
+    private static final int WINDUP_FRAMES = 24;
     private static final Color BODY_COLOR = new Color(235, 170, 55);
 
     private final double[] cloneX = new double[CLONE_COUNT];
     private final double[] cloneY = new double[CLONE_COUNT];
+    private final Random random = new Random();
     private int attackFrame;
+    private double wanderX = GamePanel.ARENA_CENTER_X + 125;
+    private double wanderY = GamePanel.ARENA_TOP + 190;
+    private int meleeCooldown;
+    private int meleeWindup;
 
     AbstracaoBoss() {
         super("ABSTRAÇÃO", "O Molde Antigo", BODY_COLOR, 36);
@@ -61,6 +70,15 @@ class AbstracaoBoss extends Boss implements BossBehavior {
             g.drawString(label, x - g.getFontMetrics().stringWidth(label) / 2, y - 40);
         }
 
+        if (meleeWindup > 0) {
+            float progress = 1.0f - (float) meleeWindup / WINDUP_FRAMES;
+            int radius = (int) (MELEE_RADIUS * (0.55 + 0.45 * progress));
+            g.setStroke(new BasicStroke(3.0f));
+            g.setColor(new Color(255, 125, 65, 105 + (int) (110 * progress)));
+            g.drawOval((int) cloneX[1] - radius, (int) cloneY[1] - radius,
+                    radius * 2, radius * 2);
+        }
+
         int originalX = (int) cloneX[0];
         int originalY = (int) cloneY[0];
         g.setColor(new Color(50, 20, 20));
@@ -75,28 +93,67 @@ class AbstracaoBoss extends Boss implements BossBehavior {
     public void updateBehavior(GamePanel game, Fighter target) {
         attackFrame++;
         double phase = attackFrame * 0.018;
+        Fighter stationaryPlayer = game.stationaryTarget();
+        Fighter chaseTarget = stationaryPlayer == null ? target : stationaryPlayer;
 
-        // A entidade original atravessa o alto da arena em movimento lateral.
+        // O clone original patrulha o alto da arena e mantém a vida do chefe.
         cloneX[0] = GamePanel.ARENA_CENTER_X + Math.sin(phase) * 145;
         cloneY[0] = GamePanel.ARENA_TOP + 105 + Math.sin(phase * 0.7) * 18;
 
-        // A primeira cópia patrulha horizontalmente e solta uma fileira horizontal.
-        cloneX[1] = GamePanel.ARENA_CENTER_X - 125 + Math.sin(phase * 1.35) * 65;
-        cloneY[1] = GamePanel.ARENA_TOP + 190;
-        if (attackFrame % 90 == 0) {
-            game.shootAbstractLane(cloneX[1], cloneY[1], true);
+        // O falso segue o jogador escolhido como alvo.
+        moveToward(1, chaseTarget.centerX(), chaseTarget.centerY(), 1.65);
+
+        // O terceiro clone escolhe um novo destino aleatório de tempos em tempos.
+        if (attackFrame % 150 == 1) {
+            wanderX = GamePanel.ARENA_LEFT + 45
+                    + random.nextDouble() * (GamePanel.ARENA_RIGHT - GamePanel.ARENA_LEFT - 90);
+            wanderY = GamePanel.ARENA_TOP + 45
+                    + random.nextDouble() * (GamePanel.ARENA_BOTTOM - GamePanel.ARENA_TOP - 90);
+        }
+        moveToward(2, wanderX, wanderY, 1.25);
+
+        // As rajadas mudam de faixa a cada cinco segundos e atacam de outra origem.
+        int barragePosition = (attackFrame / FIVE_SECONDS) % 4;
+        double[] laneX = { GamePanel.ARENA_LEFT + 55, GamePanel.ARENA_RIGHT - 55,
+                GamePanel.ARENA_CENTER_X - 135, GamePanel.ARENA_CENTER_X + 135 };
+        double[] laneY = { GamePanel.ARENA_TOP + 185, GamePanel.ARENA_TOP + 185,
+                GamePanel.ARENA_TOP + 225, GamePanel.ARENA_TOP + 225 };
+        if (attackFrame % 72 == 0) {
+            game.shootAbstractLane(laneX[barragePosition], laneY[barragePosition],
+                    barragePosition % 2 == 0);
         }
 
-        // A segunda cópia sobe e desce; suas fileiras verticais cruzam as duas rotas.
-        cloneX[2] = GamePanel.ARENA_CENTER_X + 125;
-        cloneY[2] = GamePanel.ARENA_TOP + 190 + Math.sin(phase * 1.1) * 65;
-        if (attackFrame % 110 == 0) {
-            game.shootAbstractLane(cloneX[2], cloneY[2], false);
-        }
+        updateStationaryPunish(game, stationaryPlayer != null);
 
         // Poder próprio: os clones projetam uma grade de linhas lentas em sequência.
         if (attackFrame % SPECIAL_POWER_FRAMES == 0) {
-            game.shootAbstractLattice(cloneX[1], cloneY[2]);
+            game.shootAbstractLattice(cloneX[0], cloneY[2]);
+        }
+    }
+
+    private void moveToward(int clone, double targetX, double targetY, double speed) {
+        double dx = targetX - cloneX[clone];
+        double dy = targetY - cloneY[clone];
+        double distance = Math.hypot(dx, dy);
+        if (distance <= speed || distance == 0) {
+            cloneX[clone] = targetX;
+            cloneY[clone] = targetY;
+            return;
+        }
+        cloneX[clone] += dx / distance * speed;
+        cloneY[clone] += dy / distance * speed;
+    }
+
+    private void updateStationaryPunish(GamePanel game, boolean playerIsStationary) {
+        if (meleeCooldown > 0) meleeCooldown--;
+        if (meleeWindup > 0) {
+            meleeWindup--;
+            if (meleeWindup == 0) {
+                game.hitPlayersInRadiusAt(cloneX[1], cloneY[1], MELEE_RADIUS, true);
+                meleeCooldown = 84;
+            }
+        } else if (playerIsStationary && meleeCooldown == 0) {
+            meleeWindup = WINDUP_FRAMES;
         }
     }
 }
