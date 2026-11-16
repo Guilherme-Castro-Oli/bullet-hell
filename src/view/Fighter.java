@@ -1,34 +1,53 @@
 package view;
 
 import model.Player;
-import model.Projectile;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 
+/**
+ * Coordena o estado de combate de um jogador para a interface da arena.
+ * A classe compõe um {@link Player} para posição, cor e desenho, e mantém aqui
+ * as regras pertencentes à partida atual, como vidas, escudos, invulnerabilidade
+ * e stamina. Assim, GamePanel conversa com um objeto Fighter sem manipular esses
+ * valores diretamente nem duplicar a lógica de cada participante.
+ */
 class Fighter {
+    /** Limites usados pelo HUD e pela regra que decide quando o jogador morreu. */
     static final int MAX_LIVES = 5;
     static final int MAX_SHIELDS = 3;
+    /** Janela de invulnerabilidade e tempos de atraso/intervalo, medidos em quadros. */
     private static final int HIT_INVULNERABILITY_FRAMES = 48;
     private static final int SHIELD_RECHARGE_DELAY = 150;
     private static final int SHIELD_RECHARGE_INTERVAL = 120;
+    /** Dimensão definida em Player; usada aqui para calcular o canto inicial do personagem. */
     private static final int PLAYER_SIZE = 22;
+    /** Reserva máxima de energia e custo fixo de cada disparo. */
     private static final double MAX_STAMINA = 100;
     private static final double SHOT_STAMINA_COST = 4;
 
+    /** Objeto responsável pela posição, aparência básica e coordenadas centrais. */
     private final Player character;
+    /** Ponto ao qual reset() retorna, guardado separadamente da posição mutável atual. */
     private final int startX;
     private final int startY;
+    /** Recursos atuais do jogador, separados dos dados geométricos mantidos em Player. */
     private int lives = MAX_LIVES;
     private int shields = MAX_SHIELDS;
+    /** Quadros restantes em que novos golpes devem ser ignorados. */
     private int invulnerabilityFrames;
+    /** Contagem regressiva até recuperar o próximo escudo. */
     private int shieldRechargeFrames;
+    /** Duração total do ciclo atual de recarga, usada para calcular a fração visual. */
     private int shieldRechargePeriod;
+    /** Energia de tiro disponível e estado que habilita sua recuperação gradual. */
     private double stamina = MAX_STAMINA;
+    /** Última direção válida de movimento, reutilizada como direção do próximo disparo. */
     private double aimX;
     private double aimY = -1;
+    /** Indica que a stamina foi esgotada e está no ciclo de recuperação automática. */
     private boolean rechargingStamina;
 
     /** Cria o personagem visual e guarda sua posição inicial para reinícios. */
@@ -43,6 +62,7 @@ class Fighter {
      * aos métodos responsáveis por cada contador.
      */
     void update() {
+        // Invulnerabilidade e recuperações avançam mesmo quando o jogador não se move.
         if (invulnerabilityFrames > 0) {
             invulnerabilityFrames--;
         }
@@ -52,6 +72,7 @@ class Fighter {
 
     /** Recarrega um escudo por vez após o atraso configurado desde o último golpe. */
     private void updateShieldRecharge() {
+        // Jogadores mortos não precisam recuperar recursos que já não poderão usar.
         if (isDead() || shields == MAX_SHIELDS || shieldRechargeFrames <= 0) {
             return;
         }
@@ -73,6 +94,7 @@ class Fighter {
         if (!rechargingStamina) {
             return;
         }
+        // O teto evita ultrapassar o máximo por causa do incremento fracionário.
         stamina = Math.min(MAX_STAMINA, stamina + 0.65);
         if (stamina >= MAX_STAMINA) {
             rechargingStamina = false;
@@ -85,6 +107,7 @@ class Fighter {
         if (!isAlive() || (dx == 0 && dy == 0)) {
             return;
         }
+        // Normalizar impede que a diagonal seja mais rápida que o deslocamento horizontal.
         double length = Math.hypot(dx, dy);
         aimX = dx / length;
         aimY = dy / length;
@@ -92,17 +115,18 @@ class Fighter {
     }
 
     /** Consome stamina e cria um tiro na direção da última mira; retorna null se indisponível. */
-    Projectile fire() {
+    ArenaProjectile fire() {
         if (!isAlive() || rechargingStamina || stamina < SHOT_STAMINA_COST) {
             return null;
         }
 
+        // O tiro só passa a recarregar quando o disparo atual consome a reserva restante.
         stamina -= SHOT_STAMINA_COST;
         if (stamina <= 0) {
             stamina = 0;
             rechargingStamina = true;
         }
-        return new Projectile(centerX(), centerY(),
+        return new ArenaProjectile(centerX(), centerY(),
                 centerX() + aimX * 500, centerY() + aimY * 500,
                 8.5, false, color(), 5);
     }

@@ -5,6 +5,7 @@ import javax.swing.SwingUtilities;
 
 /** Janela Swing que abre a partida coordenada por GamePanel. */
 public class BulletHellGame extends JFrame {
+    /** Identificador de serialização exigido por JFrame e mantido estável entre execuções. */
     private static final long serialVersionUID = 1L;
 
     /** Configura a janela principal e instala o painel que contém a partida. */

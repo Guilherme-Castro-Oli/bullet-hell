@@ -58,6 +58,14 @@ public class Projectile {
         drawPixelShot(g);
     }
 
+    /**
+     * Fornece a cor-base do desenho e permite que projéteis especializados mudem
+     * sua aparência sem duplicar os formatos pixelados usados por esta classe.
+     */
+    protected Color displayColor() {
+        return color;
+    }
+
     /** Desenha o disparo do jogador como um raio pixelado apontado para seu movimento. */
     private void drawPixelShot(Graphics2D g) {
         String[] pixels = {
@@ -71,12 +79,13 @@ public class Projectile {
                 "....1221...",
                 ".....111..."
         };
+        Color shotColor = displayColor();
         Color[] palette = {
                 null,
-                color.darker().darker(),
-                color,
-                shade(color, 0.48),
-                shade(color, 0.86)
+                shotColor.darker().darker(),
+                shotColor,
+                shade(shotColor, 0.48),
+                shade(shotColor, 0.86)
         };
         int pixelSize = 2;
         int width = pixels[0].length() * pixelSize;
@@ -109,12 +118,13 @@ public class Projectile {
                 "..12221..",
                 "...111..."
         };
+        Color shotColor = displayColor();
         Color[] palette = {
                 null,
-                color.darker().darker(),
-                color,
-                shade(color, 0.48),
-                shade(color, 0.82)
+                shotColor.darker().darker(),
+                shotColor,
+                shade(shotColor, 0.48),
+                shade(shotColor, 0.82)
         };
         int pixelSize = 2;
         int left = (int) Math.round(x) - pixels[0].length() * pixelSize / 2;

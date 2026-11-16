@@ -1,8 +1,6 @@
 package view;
 
-import model.Boss;
 import model.Explosion;
-import model.Projectile;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -34,49 +32,72 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Painel que coordena a partida Swing: recebe entrada, avança o estado a cada
+ * chamada do Timer, aplica colisões e delega desenho aos objetos do modelo.
+ * O enum Screen centraliza os modos de apresentação para que o mesmo painel
+ * possa mostrar menu, combate, intervalo, pausa e resultado. Os lutadores,
+ * chefes, projéteis e efeitos continuam em objetos próprios; este painel os
+ * relaciona e controla a ordem em que cada etapa da partida acontece.
+ */
 class GamePanel extends JPanel implements ActionListener {
+    /** Identificador estável requerido pela hierarquia serializável de Swing. */
     private static final long serialVersionUID = 1L;
 
+    /** Dimensões globais do painel e altura reservada para o HUD. */
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
     private static final int HUD_HEIGHT = 68;
     private static final int PLAY_HEIGHT = HEIGHT - HUD_HEIGHT;
+    /** Limites e centro da área de combate, compartilhados pelos chefes da mesma package. */
     static final int ARENA_LEFT = 54;
     static final int ARENA_TOP = 74;
     static final int ARENA_RIGHT = WIDTH - 54;
     static final int ARENA_BOTTOM = PLAY_HEIGHT - 10;
     static final double ARENA_CENTER_X = (ARENA_LEFT + ARENA_RIGHT) / 2.0;
     static final double ARENA_CENTER_Y = (ARENA_TOP + ARENA_BOTTOM) / 2.0;
+    /** Parâmetros de movimento e cadência de tiro usados pelo ciclo de atualização. */
     private static final int PLAYER_SPEED = 5;
     private static final int PLAYER_FIRE_INTERVAL = 7;
     private static final Rectangle START_BUTTON = new Rectangle(WIDTH - 250, HEIGHT - 105, 220, 80);
     private static final String MENU_IMAGE_RESOURCE = "/image/imagem menu.jpg";
 
+    /** Telas possíveis; PAUSED guarda separadamente qual modo deve ser retomado. */
     private enum Screen { MENU, PLAYING, INTERMISSION, PAUSED, VICTORY, DEFEAT }
 
+    /** Timer do Swing dispara o ciclo de jogo; imagens e portal são carregados uma vez. */
     private final Timer timer = new Timer(16, this);
+    /** Serviço compartilhado que mantém a música e os efeitos fora das regras de combate. */
+    private final GameAudio audio = new GameAudio();
     private final BufferedImage background;
     private final BufferedImage menuBackground;
     private final Portal portal;
+    /** Entidades principais da partida e coleções que registram seus disparos e autores. */
     private final Fighter playerOne = new Fighter(280, PLAY_HEIGHT - 80, new Color(80, 220, 255));
     private final Fighter playerTwo = new Fighter(500, PLAY_HEIGHT - 80, new Color(255, 115, 180));
-    private final List<Projectile> projectiles = new ArrayList<>();
-    private final Map<Projectile, Fighter> projectileOwners = new IdentityHashMap<>();
+    private final List<ArenaProjectile> projectiles = new ArrayList<>();
+    // Identidade de objeto associa cada disparo ao autor sem depender de igualdade por valor.
+    private final Map<ArenaProjectile, Fighter> projectileOwners = new IdentityHashMap<>();
+    /** Estado contínuo das teclas/botões, consultado em todo quadro enquanto permanecer pressionado. */
     private final boolean[] keys = new boolean[512];
     private final boolean[] mouseButtons = new boolean[3];
-    private Boss[] bosses;
+    /** Sequência de chefes e estatísticas de combate usadas para progressão e seleção de alvo. */
+    private GameBoss[] bosses;
     private int bossIndex;
     private int fireTick;
     private int playerOneBossDamage;
     private int playerTwoBossDamage;
+    /** Últimas posições observadas e contadores para detectar permanência quase imóvel. */
     private double previousPlayerOneX = Double.NaN;
     private double previousPlayerOneY = Double.NaN;
     private double previousPlayerTwoX = Double.NaN;
     private double previousPlayerTwoY = Double.NaN;
     private int playerOneStillFrames;
     private int playerTwoStillFrames;
+    /** Efeitos de morte independentes; enquanto existem, substituem o desenho do lutador. */
     private Explosion playerOneExplosion;
     private Explosion playerTwoExplosion;
+    /** Estado visual, opções de interface e contadores de transição/resultado da partida. */
     private Screen screen = Screen.MENU;
     private boolean showHud = true;
     private boolean startButtonHovered;
@@ -104,6 +125,7 @@ class GamePanel extends JPanel implements ActionListener {
         menuBackground = loadMenuBackground();
         portal = new Portal(WIDTH / 2, PLAY_HEIGHT / 2, loadPortalImage());
         configureControls();
+        audio.startMusic();
         timer.start();
     }
 
@@ -129,12 +151,12 @@ class GamePanel extends JPanel implements ActionListener {
      * leitura funcionar, retorna null; Portal.draw então desenha uma forma simples.
      */
     private BufferedImage loadPortalImage() {
-        BufferedImage image = loadImage("/image/portal_azul.png");
+        BufferedImage image = loadImage("/image/portal.png");
         if (image != null) {
             return image;
         }
         try {
-            return ImageIO.read(new File("src/image/portal_azul.png"));
+            return ImageIO.read(new File("src/image/portal.png"));
         } catch (IOException ignored) {
             return null;
         }
@@ -439,7 +461,7 @@ class GamePanel extends JPanel implements ActionListener {
         }
 
         updatePlayerMovement();
-        Boss boss = bosses[bossIndex];
+        GameBoss boss = bosses[bossIndex];
         boss.update(WIDTH);
         updatePlayerAttacks();
         updateBossAttacks(boss);
@@ -502,10 +524,11 @@ class GamePanel extends JPanel implements ActionListener {
         if (!fireButtonDown) {
             return;
         }
-        Projectile projectile = fighter.fire();
+        ArenaProjectile projectile = fighter.fire();
         if (projectile != null) {
             projectiles.add(projectile);
             projectileOwners.put(projectile, fighter);
+            audio.playPlayerShot();
         }
     }
 
@@ -513,7 +536,7 @@ class GamePanel extends JPanel implements ActionListener {
      * Consulta o contrato BossBehavior do chefe e chama sua rotina própria com o
      * alvo escolhido; chefes sem esse contrato não executam ataques personalizados.
      */
-    private void updateBossAttacks(Boss boss) {
+    private void updateBossAttacks(GameBoss boss) {
         if (boss instanceof BossBehavior) {
             updatePlayerStillFrames();
             BossBehavior behavior = (BossBehavior) boss;
@@ -528,7 +551,13 @@ class GamePanel extends JPanel implements ActionListener {
         return null;
     }
 
+    /**
+     * Atualiza, para cada jogador, a duração contínua em que sua posição quase não mudou.
+     * A primeira execução guarda as coordenadas de referência; nas seguintes compara a
+     * distância entre amostras e zera a sequência quando o jogador volta a se mover.
+     */
     private void updatePlayerStillFrames() {
+        // A primeira amostra só inicializa a comparação; não representa ainda um quadro parado.
         double oneX = playerOne.centerX();
         double oneY = playerOne.centerY();
         double twoX = playerTwo.centerX();
@@ -540,6 +569,7 @@ class GamePanel extends JPanel implements ActionListener {
             previousPlayerTwoY = twoY;
             return;
         }
+        // Um deslocamento menor que 0,75 px trata a posição como imóvel; mover reinicia a contagem.
         playerOneStillFrames = Math.hypot(oneX - previousPlayerOneX,
                 oneY - previousPlayerOneY) < 0.75 ? playerOneStillFrames + 1 : 0;
         playerTwoStillFrames = Math.hypot(twoX - previousPlayerTwoX,
@@ -551,7 +581,9 @@ class GamePanel extends JPanel implements ActionListener {
     }
 
     /** Mede a distância de cada jogador até o chefe e aplica dano aos que estão no raio. */
-    void hitPlayersInRadius(Boss boss, double radius, boolean shieldPiercing) {
+    void hitPlayersInRadius(GameBoss boss, double radius, boolean shieldPiercing) {
+        // Encapsulamento é o terceiro chefe e usa um som próprio no golpe de área.
+        audio.playBossShot(bossIndex == 2);
         hitPlayersInRadiusAt(boss.x(), boss.y(), radius, shieldPiercing);
     }
 
@@ -586,7 +618,7 @@ class GamePanel extends JPanel implements ActionListener {
 
     /**
      * Retorna o único jogador vivo, se houver. Com ambos vivos alterna o alvo a cada
-     * 45 quadros; durante o terceiro chefe escolhe quem causou mais dano a ele.
+     * 45 quadros; contra Encapsulamento, o terceiro chefe, escolhe quem causou mais dano.
      */
     private Fighter chooseTarget(int tick) {
         if (!playerOne.isAlive()) {
@@ -603,11 +635,13 @@ class GamePanel extends JPanel implements ActionListener {
 
     /**
      * Calcula o ângulo do chefe ao alvo e distribui count projéteis pela abertura
-     * spread. Cada direção vira um Projectile com as propriedades de divisão e verdade
-     * recebidas; os projéteis são acrescentados à lista que updateProjectiles percorre.
+     * spread. Cada direção vira um ArenaProjectile com as propriedades de divisão e verdade
+     * recebidas; quando splits está ativo, somente o tiro central se divide. Os projéteis
+     * são acrescentados à lista que updateProjectiles percorre.
      */
-    void shootFan(Boss boss, Fighter target, int count, double spread,
+    void shootFan(GameBoss boss, Fighter target, int count, double spread,
                           boolean splits, boolean changesTruth, double speed, Color color) {
+        audio.playBossShot(bossIndex == 2);
         double dx = target.centerX() - boss.x();
         double dy = target.centerY() - boss.y();
         double baseAngle = Math.atan2(dy, dx);
@@ -615,10 +649,11 @@ class GamePanel extends JPanel implements ActionListener {
         for (int index = 0; index < count; index++) {
             double offset = count == 1 ? 0 : -spread / 2 + spread * index / (count - 1.0);
             double angle = baseAngle + offset;
-            projectiles.add(new Projectile(boss.x(), boss.y() + 25,
+            projectiles.add(new ArenaProjectile(boss.x(), boss.y() + 25,
                     boss.x() + Math.cos(angle) * 500,
                     boss.y() + Math.sin(angle) * 500,
-                    speed, true, color, 7, splits, changesTruth));
+                    speed, true, color, 7,
+                    splits && index == count / 2, changesTruth));
         }
     }
 
@@ -626,53 +661,72 @@ class GamePanel extends JPanel implements ActionListener {
      * Divide 2π por count, cria um projétil em cada ângulo e o adiciona à lista ativa.
      * É usado pelos chefes para ataques circulares independentes da posição dos jogadores.
      */
-    void shootRadial(Boss boss, int count, double speed, Color color) {
+    void shootRadial(GameBoss boss, int count, double speed, Color color) {
+        shootRadial(boss, count, speed, color, false);
+    }
+
+    /** Cria uma rajada circular cujos projéteis podem alternar entre perigosos e inofensivos. */
+    void shootRadial(GameBoss boss, int count, double speed, Color color,
+                     boolean changesTruth) {
+        audio.playBossShot(bossIndex == 2);
         for (int index = 0; index < count; index++) {
             double angle = Math.PI * 2 * index / count;
-            projectiles.add(new Projectile(boss.x(), boss.y() + 25,
+            projectiles.add(new ArenaProjectile(boss.x(), boss.y() + 25,
                     boss.x() + Math.cos(angle) * 500,
                     boss.y() + Math.sin(angle) * 500,
-                    speed, true, color, 6));
+                    speed, true, color, 6, false, changesTruth));
         }
     }
 
-    /** Rajada em faixa: os projéteis seguem paralelos, sem formar leque ou círculo. */
+    /** Cria três projéteis em leque estreito apontados ao alvo atual. */
     void shootAbstractVolley(double originX, double originY, Fighter target) {
+        audio.playBossShot(bossIndex == 2);
         double baseAngle = Math.atan2(target.centerY() - originY,
                 target.centerX() - originX);
         for (int index = -1; index <= 1; index++) {
             double angle = baseAngle + index * 0.24;
-            projectiles.add(new Projectile(originX, originY,
+            projectiles.add(new ArenaProjectile(originX, originY,
                     originX + Math.cos(angle) * 500,
                     originY + Math.sin(angle) * 500,
-                    3.8, true, new Color(255, 195, 90), 6));
+                    4.2, true, new Color(255, 195, 90), 6));
         }
     }
 
-    /** Rajada em faixa: os projéteis seguem paralelos, sem formar leque ou círculo. */
+    /**
+     * Cria uma linha de projéteis em orientação horizontal ou vertical.
+     * O parâmetro horizontal troca qual coordenada varia entre os sete tiros,
+     * enquanto a outra permanece alinhada para que a fileira atravesse a arena.
+     */
     void shootAbstractLane(double originX, double originY, boolean horizontal) {
+        audio.playBossShot(bossIndex == 2);
         for (int index = -3; index <= 3; index++) {
             double startX = horizontal ? originX - 190 : originX + index * 24;
             double startY = horizontal ? originY + index * 24 : originY - 150;
             double aimX = horizontal ? originX + 300 : startX;
             double aimY = horizontal ? startY : originY + 190;
-            projectiles.add(new Projectile(startX, startY, aimX, aimY,
-                    4.0, true, new Color(205, 125, 255), 6));
+            projectiles.add(new ArenaProjectile(startX, startY, aimX, aimY,
+                    4.4, true, new Color(205, 125, 255), 6));
         }
     }
 
-    /** Poder especial: os clones projetam cortinas paralelas que cruzam a arena em grade. */
+    /**
+     * Poder especial que monta uma grade de trajetórias horizontais e verticais.
+     * Cada uma das nove faixas horizontais começa em leftX e percorre a arena; as
+     * nove verticais começam na altura rightY e atravessam a área até sua borda inferior.
+     */
     void shootAbstractLattice(double leftX, double rightY) {
+        audio.playBossShot(bossIndex == 2);
+        // Uma fração igualmente espaçada posiciona cada linha entre as bordas da arena.
         int lanes = 9;
         for (int index = 0; index < lanes; index++) {
             double fraction = index / (double) (lanes - 1);
             double y = ARENA_TOP + fraction * (ARENA_BOTTOM - ARENA_TOP);
-            projectiles.add(new Projectile(leftX, y, ARENA_RIGHT, y,
-                    3.4, true, new Color(220, 150, 255), 7));
+            projectiles.add(new ArenaProjectile(leftX, y, ARENA_RIGHT, y,
+                    3.8, true, new Color(220, 150, 255), 7));
 
             double x = ARENA_LEFT + fraction * (ARENA_RIGHT - ARENA_LEFT);
-            projectiles.add(new Projectile(x, rightY, x, ARENA_BOTTOM,
-                    3.4, true, new Color(150, 210, 255), 7));
+            projectiles.add(new ArenaProjectile(x, rightY, x, ARENA_BOTTOM,
+                    3.8, true, new Color(150, 210, 255), 7));
         }
     }
 
@@ -681,13 +735,13 @@ class GamePanel extends JPanel implements ActionListener {
      * posição, elimina os que saíram da tela, troca projéteis divididos por oito novos,
      * aplica dano ao chefe ou aos jogadores e só depois acrescenta os novos projéteis.
      */
-    private void updateProjectiles(Boss boss) {
-        Iterator<Projectile> iterator = projectiles.iterator();
+    private void updateProjectiles(GameBoss boss) {
+        Iterator<ArenaProjectile> iterator = projectiles.iterator();
         // A lista temporária só é necessária nos quadros em que um projétil se divide.
-        List<Projectile> splitProjectiles = null;
+        List<ArenaProjectile> splitProjectiles = null;
 
         while (iterator.hasNext()) {
-            Projectile projectile = iterator.next();
+            ArenaProjectile projectile = iterator.next();
             projectile.update();
 
             if (projectile.outside(WIDTH, HEIGHT)) {
@@ -697,6 +751,7 @@ class GamePanel extends JPanel implements ActionListener {
             }
 
             if (projectile.consumeSplitReady()) {
+                audio.playSplit();
                 if (splitProjectiles == null) {
                     splitProjectiles = new ArrayList<>(8);
                 }
@@ -753,10 +808,10 @@ class GamePanel extends JPanel implements ActionListener {
      * Cria oito trajetórias igualmente espaçadas a partir da posição do projétil original
      * e as guarda na lista temporária, evitando modificar projectiles durante sua iteração.
      */
-    private void addSplitProjectiles(Projectile source, List<Projectile> destination) {
+    private void addSplitProjectiles(ArenaProjectile source, List<ArenaProjectile> destination) {
         for (int index = 0; index < 8; index++) {
             double angle = Math.PI * 2 * index / 8;
-            destination.add(new Projectile(source.x(), source.y(),
+            destination.add(new ArenaProjectile(source.x(), source.y(),
                     source.x() + Math.cos(angle) * 100,
                     source.y() + Math.sin(angle) * 100,
                     3.8, true, new Color(255, 185, 70), 6));
@@ -767,8 +822,9 @@ class GamePanel extends JPanel implements ActionListener {
      * Compara a distância projétil-jogador com o raio de colisão. Retorna false sem alterar
      * o Iterator quando não há acerto; no acerto, aplica dano, remove o projétil e retorna true.
      */
-    private boolean hitPlayer(Projectile projectile, Fighter fighter,
-                              Iterator<Projectile> iterator, boolean shieldPiercing) {
+    private boolean hitPlayer(ArenaProjectile projectile, Fighter fighter,
+                              Iterator<ArenaProjectile> iterator, boolean shieldPiercing) {
+        // A colisão é circular e baseada nos centros, com raio fixo ajustado ao sprite atual.
         if (!fighter.isAlive()
                 || Math.hypot(projectile.x() - fighter.centerX(),
                               projectile.y() - fighter.centerY()) >= 22) {
@@ -785,7 +841,7 @@ class GamePanel extends JPanel implements ActionListener {
      * Não faz nada enquanto o chefe vive. Ao derrotá-lo, limpa projéteis e avança o índice;
      * registra vitória se era o último chefe ou muda para INTERMISSION e limpa controles.
      */
-    private void advanceBoss(Boss boss) {
+    private void advanceBoss(GameBoss boss) {
         if (!boss.defeated()) {
             return;
         }
@@ -870,7 +926,7 @@ class GamePanel extends JPanel implements ActionListener {
         } else if (bossIndex < bosses.length) {
             bosses[bossIndex].draw(g);
         }
-        for (Projectile projectile : projectiles) {
+        for (ArenaProjectile projectile : projectiles) {
             projectile.draw(g);
         }
 
@@ -1146,8 +1202,8 @@ class GamePanel extends JPanel implements ActionListener {
     }
 
     /** Retorna os quatro chefes na ordem da partida; resetMatch cria novas instâncias. */
-    private static Boss[] createBosses() {
-        return new Boss[] {
+    private static GameBoss[] createBosses() {
+        return new GameBoss[] {
                 new HerancaBoss(),
                 new PolimorfismoBoss(),
                 new EncapsulamentoBoss(),
