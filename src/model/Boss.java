@@ -11,31 +11,51 @@ import java.awt.Graphics2D;
 public abstract class Boss {
     protected final String name;
     protected final Color color;
+    protected final int radius = 31;
     protected int maxHP;
-    protected int hp = maxHP;
+    protected int hp;
     protected double x, y;
     protected int cooldown;
+    protected boolean dead = false;
 
     /** Recebe os valores que diferenciam este chefe dos outros. */
     public Boss(String name, Color color, int maxhp, double x, double y) {
-        this.name = name; this.color = color;
-        this.maxHP = maxhp; this.x = x; this.y = y;
+        this.name = name; this.color = color; this.maxHP = maxhp; 
+        this.hp = maxHP; this.x = x; this.y = y;
     }
 
     // movimentação
     abstract public void move(int width);
-    /* coisa pra movimento do heranca
-    tick++;
-        // O chefe se desloca lateralmente enquanto ataca. Seno cria movimento
-        // contínuo de ida e volta; tick funciona como relógio em quadros.
-        x = width / 2.0 + Math.sin(tick * 0.025) * Math.min(180, width * 0.25);
-        */
-
-
-    // O resto da divisão é zero nos quadros em que chegou a hora de atirar.
-    //abstract public boolean shouldShoot();
 
     abstract public void draw(Graphics2D g);
+
+    public boolean hit(Projectile proj){
+        if (proj.getFromBoss() || dead) {
+            return false;
+        }
+        if (proj.getX() < x + radius && proj.getX() + proj.getRadius() > x - radius &&
+            proj.getY() < y + radius && proj.getY() + proj.getRadius() > y - radius) {
+            hp--;
+            if (hp <= 0) {
+                dead = true;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    abstract public Projectile shoot(Player player);
+
+    public boolean shouldShoot(){
+        if (dead) {
+            return false;
+        }
+        if (++cooldown < 30) {
+            return false;
+        }
+        cooldown = 0;
+        return true;
+    }
 
     public double getX() { return x; }
     public double getY() { return y; }

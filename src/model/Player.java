@@ -19,6 +19,7 @@ public class Player {
     private int shields = 5;
     private double aimX, aimY;
     private int cooldown = 0;
+    private boolean dead = false;
 
     /** Cria um jogador na posição indicada e com uma cor fácil de reconhecer. */
     public Player(int x, int y, Color color) {
@@ -42,6 +43,9 @@ public class Player {
 
     /** Desenha o quadrado preenchido e uma borda branca para destacá-lo. */
     public void draw(Graphics2D g) {
+        if (health <= 0) {
+            return;
+        }
         g.setColor(color);
         g.fillRect((int)x, (int)y, size, size);
         g.setColor(Color.WHITE);
@@ -50,16 +54,15 @@ public class Player {
 
     /** Consome stamina e cria um tiro na direção da última mira; retorna null se indisponível. */
     public Projectile fire() {
-        if (health <= 0) {
-            return null;
-        }
-
         return new Projectile(
             centerX(), centerY(), aimX, aimY, false, 
             new Color(244,131,38), 5);
     }
 
     public boolean canShoot() {
+        if (health <= 0) {
+            return false;
+        }
         cooldown++;
         if (cooldown > 7) {
             cooldown = 0;
@@ -105,6 +108,21 @@ public class Player {
         }
     }
 
+    public boolean hit(Projectile proj){
+        if (!proj.getFromBoss() || dead) {
+            return false;
+        }
+        if (proj.getX() < x + size && proj.getX() + proj.getRadius() > x &&
+            proj.getY() < y + size && proj.getY() + proj.getRadius() > y) {
+            health--;
+            if (health <= 0) {
+                dead = true;
+            }
+            return true;
+        }
+        return false;
+    }
+
     /*AINDA NÃO FUNFA */
     /** Calcula a fração de recarga do próximo escudo para preencher o indicador do HUD. */
     double shieldRegenerationProgress() {
@@ -121,4 +139,5 @@ public class Player {
     public double centerX() { return x + (size / 2.0); }
     public double centerY() { return y + (size / 2.0); }
     public Color getColor() { return color; }
+    public boolean isDead() { return dead; }
 }

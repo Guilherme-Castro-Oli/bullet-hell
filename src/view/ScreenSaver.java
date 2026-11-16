@@ -65,9 +65,9 @@ public class ScreenSaver extends JFrame {
         Player p1, p2;
         ArrayList<Projectile> projectiles;
         Boss boss;
-
-
-        
+        ArrayList<Player> players;
+        PortalLevel portal;
+        boolean reset;
 
         // Flags para rastrear teclas pressionadas
         private boolean space = false;
@@ -80,6 +80,7 @@ public class ScreenSaver extends JFrame {
         private boolean s = false;
         private boolean a = false;
         private boolean d = false;
+        private boolean r = false;
 
         public ScreenSaverPanel() {
             this.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
@@ -113,6 +114,8 @@ public class ScreenSaver extends JFrame {
                         a = true;
                     if (e.getKeyCode() == KeyEvent.VK_D)
                         d = true;
+                    if (e.getKeyCode() == KeyEvent.VK_R)
+                        r = true;
                 }
 
                 @Override
@@ -138,6 +141,8 @@ public class ScreenSaver extends JFrame {
                         d = false;
                     if (e.getKeyCode() == KeyEvent.VK_A)
                         a = false;
+                    if (e.getKeyCode() == KeyEvent.VK_R)
+                        r = false;
                 }
             });
 
@@ -153,8 +158,13 @@ public class ScreenSaver extends JFrame {
 
             p1 = new Player( 200, 450, new Color(255,0,0));
             p2 = new Player( 600, 450, new Color(0,0,255));
+            players = new ArrayList<Player>();
+            players.add(p1);
+            players.add(p2);
             projectiles = new ArrayList<Projectile>();
             boss = new BossHeranca(300, 200);
+            portal = new PortalLevel(-100, -100, null);
+            reset = false;
 
             this.timer = new Timer(DELAY_MS, this);
         }
@@ -214,15 +224,54 @@ public class ScreenSaver extends JFrame {
                     projectiles.add(p2.fire());
                 }
             }
+            if (r) {
+                reset = true;
+            }
 
+            if (boss.shouldShoot()) {
+                if (players.size() != 0) {
+                    int target = (int) (Math.random() * players.size());
+                    if (!players.get(target).isDead()) {
+                        projectiles.add(boss.shoot(players.get(target)));
+                    } else {
+                        players.remove(target);
+                    }
+                }
+            }
 
+            boss.move(CANVAS_WIDTH);
+
+            // movimenta os projéteis e checa colisão
             for (int i = 0; i < projectiles.size(); i++) {
                 Projectile proj = projectiles.get(i);
-                proj.update();
-                if (proj.outside(CANVAS_WIDTH, CANVAS_HEIGHT)) {
+                proj.update(projectiles);
+                if (boss.hit(proj) || p1.hit(proj) || p2.hit(proj) || 
+                    proj.outside(CANVAS_WIDTH, CANVAS_HEIGHT)) {
                     projectiles.remove(i);
                     i--; // Ajusta o índice após a remoção
                 }
+            }
+
+            
+
+            if (boss.getHp() <= 0 ){
+                portal.update();
+                if (!portal.getVisible()) {
+                    portal.changePos();
+                }
+                if (portal.isPlayerNear(p1, p2) && space) {
+                    portal.changePos();
+                    reset = true;
+                }
+            }
+
+            if (reset) {
+                p1 = new Player( 200, 450, new Color(255,0,0));
+                p2 = new Player( 600, 450, new Color(0,0,255));
+                boss = new BossHeranca(300, 200);
+                projectiles.clear();
+                portal = new PortalLevel(-100, -100, null);
+                reset = false;
             }
 
             this.repaint();
@@ -245,6 +294,7 @@ public class ScreenSaver extends JFrame {
             for (Projectile proj : projectiles) {
                 proj.draw(g2d);
             }
+            portal.draw(g2d, portal.isPlayerNear(p1, p2));
             p1.draw(g2d);
             p2.draw(g2d);
             
