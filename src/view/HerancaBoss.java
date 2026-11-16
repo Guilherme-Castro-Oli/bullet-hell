@@ -15,7 +15,7 @@ class HerancaBoss extends Boss implements BossBehavior {
     /** Alterna os padrões de ataque após cada intervalo de 105 quadros. */
     @Override
     public void updateBehavior(GamePanel game, Fighter target) {
-        if (++attackFrame < 105) {
+        if (++attackFrame < 90) {
             return;
         }
         attackFrame = 0;
