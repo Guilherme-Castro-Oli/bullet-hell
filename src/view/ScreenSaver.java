@@ -71,6 +71,7 @@ public class ScreenSaver extends JFrame {
 
         // Flags para rastrear teclas pressionadas
         private boolean space = false;
+        private boolean m = false;
         private boolean up = false;
         private boolean down = false;
         private boolean right = false;
@@ -96,6 +97,8 @@ public class ScreenSaver extends JFrame {
                     // Quando a tecla é pressionada, ativamos a flag
                     if (e.getKeyCode() == KeyEvent.VK_SPACE)
                         space = true;
+                    if (e.getKeyCode() == KeyEvent.VK_M)
+                        m = true;
                     if (e.getKeyCode() == KeyEvent.VK_UP)
                         up = true;
                     if (e.getKeyCode() == KeyEvent.VK_DOWN)
@@ -123,6 +126,8 @@ public class ScreenSaver extends JFrame {
                     // Quando a tecla é solta, desativamos a flag
                     if (e.getKeyCode() == KeyEvent.VK_SPACE)
                         space = false;
+                    if (e.getKeyCode() == KeyEvent.VK_M)
+                        m = false;
                     if (e.getKeyCode() == KeyEvent.VK_UP)
                         up = false;
                     if (e.getKeyCode() == KeyEvent.VK_DOWN)
@@ -219,7 +224,7 @@ public class ScreenSaver extends JFrame {
                 }
             }
             // talvez troca sapoxa (a tecla espaço) por ponto e virgula 
-            if (space) {
+            if (m) {
                 if (p2.canShoot()) {
                     projectiles.add(p2.fire());
                 }
@@ -241,6 +246,9 @@ public class ScreenSaver extends JFrame {
 
             boss.move(CANVAS_WIDTH);
 
+            p1.updateShieldRecharge();
+            p2.updateShieldRecharge();
+
             // movimenta os projéteis e checa colisão
             for (int i = 0; i < projectiles.size(); i++) {
                 Projectile proj = projectiles.get(i);
@@ -251,7 +259,6 @@ public class ScreenSaver extends JFrame {
                     i--; // Ajusta o índice após a remoção
                 }
             }
-
             
 
             if (boss.getHp() <= 0 ){
@@ -268,6 +275,9 @@ public class ScreenSaver extends JFrame {
             if (reset) {
                 p1 = new Player( 200, 450, new Color(255,0,0));
                 p2 = new Player( 600, 450, new Color(0,0,255));
+                players = new ArrayList<Player>();
+                players.add(p1);
+                players.add(p2);
                 boss = new BossHeranca(300, 200);
                 projectiles.clear();
                 portal = new PortalLevel(-100, -100, null);

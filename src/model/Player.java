@@ -15,17 +15,21 @@ public class Player {
     // final significa que cor, tamanho e nome são definidos na criação do jogador.
     private final Color color;
     private final int size = 22;
+    private final int maxShield = 3;
     public int health = 5;
-    private int shields = 5;
+    private int shields = maxShield;
     private double aimX, aimY;
     private int cooldown = 0;
     private boolean dead = false;
+    private int shieldRechargeFrames = 0;
+    private int shieldRechargePeriod = 0;
 
     /** Cria um jogador na posição indicada e com uma cor fácil de reconhecer. */
     public Player(int x, int y, Color color) {
         this.x = x;
         this.y = y;
         this.color = color;
+        aimY = -3;
     }
 
     /**
@@ -91,7 +95,7 @@ public class Player {
 
         g.setColor(new Color(235, 238, 228));
         g.drawString("ESCUDO", x + 152, y);
-        for (int index = 0; index < 5; index++) {
+        for (int index = 0; index < maxShield; index++) {
             int blockX = x + 200 + index * 14;
             g.setColor(new Color(45, 64, 67));
             g.fillRoundRect(blockX, y - 10, 10, 9, 4, 4);
@@ -114,7 +118,16 @@ public class Player {
         }
         if (proj.getX() < x + size && proj.getX() + proj.getRadius() > x &&
             proj.getY() < y + size && proj.getY() + proj.getRadius() > y) {
-            health--;
+            
+            if (shields <= 0) {
+                health--;
+            } else {
+                if (shields == maxShield) {
+                    shieldRechargePeriod = 120;
+                    shieldRechargeFrames = 120;
+                }
+                shields--;
+            }
             if (health <= 0) {
                 dead = true;
             }
@@ -123,16 +136,31 @@ public class Player {
         return false;
     }
 
-    /*AINDA NÃO FUNFA */
+    /** Recarrega um escudo por vez após o atraso configurado desde o último golpe. */
+    public void updateShieldRecharge() {
+        if (isDead() || shields == maxShield || shieldRechargeFrames <= 0) {
+            return;
+        }
+
+        shieldRechargeFrames--;
+        if (shieldRechargeFrames == 0) {
+            shields++;
+            if (shields < maxShield) {
+                shieldRechargePeriod = 120;
+                shieldRechargeFrames = 120;
+            } else {
+                shieldRechargePeriod = 0;
+            }
+        }
+    }
+
     /** Calcula a fração de recarga do próximo escudo para preencher o indicador do HUD. */
-    double shieldRegenerationProgress() {
-        return 0;
-        /*
-        if (shields == 5 || shieldRechargePeriod == 0) {
+    private double shieldRegenerationProgress() {
+        if (shields == maxShield || shieldRechargePeriod == 0) {
             return 0;
         }
         return Math.max(0, Math.min(1, 1.0 - (double) shieldRechargeFrames / shieldRechargePeriod));
-        */
+        
     }
 
     // Os tiros partem do centro do quadrado, não de um de seus cantos.
