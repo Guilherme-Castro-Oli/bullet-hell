@@ -89,10 +89,26 @@ class EncapsulamentoBoss extends Boss implements BossBehavior {
         if (windup > 0) {
             float progress = 1.0f - (float) windup / WINDUP_FRAMES;
             int radius = (int) (MELEE_RADIUS * (0.55 + 0.45 * progress));
-            g.setStroke(new BasicStroke(3.0f));
-            g.setColor(new Color(115, 195, 255, 105 + (int) (110 * progress)));
-            g.drawOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
+            int alpha = 105 + (int) (110 * progress);
+            drawPixelRing(g, centerX, centerY, radius, 5,
+                    new Color(35, 85, 145, alpha), 10);
+            drawPixelRing(g, centerX, centerY, radius - 9, 4,
+                    new Color(115, 195, 255, alpha), 5);
         }
         g.setStroke(previousStroke);
+    }
+
+    /** Forma o aviso de impacto com blocos luminosos no estilo pixel art dos projéteis. */
+    private void drawPixelRing(Graphics2D g, int centerX, int centerY,
+                               int radius, int pixelSize, Color color, int thickness) {
+        g.setColor(color);
+        for (int y = -radius; y <= radius; y += pixelSize) {
+            for (int x = -radius; x <= radius; x += pixelSize) {
+                double distance = Math.hypot(x + pixelSize / 2.0, y + pixelSize / 2.0);
+                if (Math.abs(distance - radius) <= thickness / 2.0) {
+                    g.fillRect(centerX + x, centerY + y, pixelSize, pixelSize);
+                }
+            }
+        }
     }
 }

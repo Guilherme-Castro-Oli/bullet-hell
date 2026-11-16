@@ -11,7 +11,7 @@ import java.util.Random;
 class AbstracaoBoss extends Boss implements BossBehavior {
     private static final int CLONE_COUNT = 3;
     private static final int SPECIAL_POWER_FRAMES = 1_875; // 30 s a 16 ms por quadro
-    private static final int FIVE_SECONDS = 313;
+    private static final int POSITION_CHANGE_FRAMES = 125;
     private static final int MELEE_RADIUS = 126;
     private static final int WINDUP_FRAMES = 24;
     private static final Color BODY_COLOR = new Color(235, 170, 55);
@@ -24,6 +24,7 @@ class AbstracaoBoss extends Boss implements BossBehavior {
     private double wanderY = GamePanel.ARENA_TOP + 190;
     private int meleeCooldown;
     private int meleeWindup;
+    private boolean healthRevealed;
 
     AbstracaoBoss() {
         super("ABSTRAÇÃO", "O Molde Antigo", BODY_COLOR, 36);
@@ -53,6 +54,13 @@ class AbstracaoBoss extends Boss implements BossBehavior {
     @Override
     public double y() { return cloneY[0]; }
 
+    /** A barra fica oculta até o chefe original receber o primeiro acerto. */
+    @Override
+    public void damage() {
+        healthRevealed = true;
+        super.damage();
+    }
+
     /** Desenha os três corpos com o mesmo molde; a barra de vida pertence à origem. */
     @Override
     public void draw(Graphics2D g) {
@@ -79,12 +87,14 @@ class AbstracaoBoss extends Boss implements BossBehavior {
                     radius * 2, radius * 2);
         }
 
-        int originalX = (int) cloneX[0];
-        int originalY = (int) cloneY[0];
-        g.setColor(new Color(50, 20, 20));
-        g.fillRect(originalX - 40, originalY + 38, 80, 7);
-        g.setColor(new Color(255, 220, 70));
-        g.fillRect(originalX - 40, originalY + 38, 80 * hp() / maxHp(), 7);
+        if (healthRevealed) {
+            int originalX = (int) cloneX[0];
+            int originalY = (int) cloneY[0];
+            g.setColor(new Color(50, 20, 20));
+            g.fillRect(originalX - 40, originalY + 38, 80, 7);
+            g.setColor(new Color(255, 220, 70));
+            g.fillRect(originalX - 40, originalY + 38, 80 * hp() / maxHp(), 7);
+        }
         g.setStroke(previousStroke);
     }
 
@@ -96,9 +106,9 @@ class AbstracaoBoss extends Boss implements BossBehavior {
         Fighter stationaryPlayer = game.stationaryTarget();
         Fighter chaseTarget = stationaryPlayer == null ? target : stationaryPlayer;
 
-        // O clone original patrulha o alto da arena e mantém a vida do chefe.
-        cloneX[0] = GamePanel.ARENA_CENTER_X + Math.sin(phase) * 145;
-        cloneY[0] = GamePanel.ARENA_TOP + 105 + Math.sin(phase * 0.7) * 18;
+        // O chefe original percorre a arena em um arco amplo, em vez de ficar no alto.
+        cloneX[0] = GamePanel.ARENA_CENTER_X + Math.sin(phase * 0.72) * 205;
+        cloneY[0] = GamePanel.ARENA_TOP + 140 + Math.sin(phase * 1.08) * 62;
 
         // O falso segue o jogador escolhido como alvo.
         moveToward(1, chaseTarget.centerX(), chaseTarget.centerY(), 1.65);
@@ -111,9 +121,12 @@ class AbstracaoBoss extends Boss implements BossBehavior {
                     + random.nextDouble() * (GamePanel.ARENA_BOTTOM - GamePanel.ARENA_TOP - 90);
         }
         moveToward(2, wanderX, wanderY, 1.25);
+        if (attackFrame % 84 == 0) {
+            game.shootAbstractVolley(cloneX[2], cloneY[2], target);
+        }
 
-        // As rajadas mudam de faixa a cada cinco segundos e atacam de outra origem.
-        int barragePosition = (attackFrame / FIVE_SECONDS) % 4;
+        // As rajadas mudam de faixa a cada dois segundos e atacam de outra origem.
+        int barragePosition = (attackFrame / POSITION_CHANGE_FRAMES) % 4;
         double[] laneX = { GamePanel.ARENA_LEFT + 55, GamePanel.ARENA_RIGHT - 55,
                 GamePanel.ARENA_CENTER_X - 135, GamePanel.ARENA_CENTER_X + 135 };
         double[] laneY = { GamePanel.ARENA_TOP + 185, GamePanel.ARENA_TOP + 185,

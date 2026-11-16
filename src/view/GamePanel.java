@@ -637,6 +637,19 @@ class GamePanel extends JPanel implements ActionListener {
     }
 
     /** Rajada em faixa: os projéteis seguem paralelos, sem formar leque ou círculo. */
+    void shootAbstractVolley(double originX, double originY, Fighter target) {
+        double baseAngle = Math.atan2(target.centerY() - originY,
+                target.centerX() - originX);
+        for (int index = -1; index <= 1; index++) {
+            double angle = baseAngle + index * 0.24;
+            projectiles.add(new Projectile(originX, originY,
+                    originX + Math.cos(angle) * 500,
+                    originY + Math.sin(angle) * 500,
+                    3.8, true, new Color(255, 195, 90), 6));
+        }
+    }
+
+    /** Rajada em faixa: os projéteis seguem paralelos, sem formar leque ou círculo. */
     void shootAbstractLane(double originX, double originY, boolean horizontal) {
         for (int index = -3; index <= 3; index++) {
             double startX = horizontal ? originX - 190 : originX + index * 24;
@@ -644,7 +657,7 @@ class GamePanel extends JPanel implements ActionListener {
             double aimX = horizontal ? originX + 300 : startX;
             double aimY = horizontal ? startY : originY + 190;
             projectiles.add(new Projectile(startX, startY, aimX, aimY,
-                    2.9, true, new Color(205, 125, 255), 6));
+                    4.0, true, new Color(205, 125, 255), 6));
         }
     }
 
@@ -655,11 +668,11 @@ class GamePanel extends JPanel implements ActionListener {
             double fraction = index / (double) (lanes - 1);
             double y = ARENA_TOP + fraction * (ARENA_BOTTOM - ARENA_TOP);
             projectiles.add(new Projectile(leftX, y, ARENA_RIGHT, y,
-                    2.5, true, new Color(220, 150, 255), 7));
+                    3.4, true, new Color(220, 150, 255), 7));
 
             double x = ARENA_LEFT + fraction * (ARENA_RIGHT - ARENA_LEFT);
             projectiles.add(new Projectile(x, rightY, x, ARENA_BOTTOM,
-                    2.5, true, new Color(150, 210, 255), 7));
+                    3.4, true, new Color(150, 210, 255), 7));
         }
     }
 
@@ -1041,9 +1054,12 @@ class GamePanel extends JPanel implements ActionListener {
     private void drawHud(Graphics2D g) {
         int top = HEIGHT - HUD_HEIGHT + 7;
         g.setColor(new Color(15, 24, 25, 225));
-        g.fillRoundRect(16, top, WIDTH - 32, HUD_HEIGHT - 14, 18, 18);
+        g.fillRect(16, top, WIDTH - 32, HUD_HEIGHT - 14);
         g.setColor(new Color(220, 230, 210, 120));
-        g.drawRoundRect(16, top, WIDTH - 32, HUD_HEIGHT - 14, 18, 18);
+        g.setStroke(new BasicStroke(2.0f));
+        g.drawRect(16, top, WIDTH - 32, HUD_HEIGHT - 14);
+        g.setColor(new Color(220, 230, 210, 75));
+        g.drawLine(25, top + 4, WIDTH - 25, top + 4);
         drawPlayerHud(g, 30, top + 19, "P1", playerOne);
         drawPlayerHud(g, 410, top + 19, "P2", playerTwo);
     }
@@ -1063,7 +1079,9 @@ class GamePanel extends JPanel implements ActionListener {
         for (int index = 0; index < Fighter.MAX_LIVES; index++) {
             int blockX = x + 72 + index * 15;
             g.setColor(index < fighter.lives() ? fighter.color() : new Color(75, 82, 80));
-            g.fillRoundRect(blockX, y - 10, 11, 9, 4, 4);
+            g.fillRect(blockX, y - 10, 11, 9);
+            g.setColor(new Color(235, 238, 228, 130));
+            g.drawRect(blockX, y - 10, 10, 8);
         }
 
         g.setColor(new Color(235, 238, 228));
@@ -1071,17 +1089,19 @@ class GamePanel extends JPanel implements ActionListener {
         for (int index = 0; index < Fighter.MAX_SHIELDS; index++) {
             int blockX = x + 195 + index * 14;
             g.setColor(new Color(45, 64, 67));
-            g.fillRoundRect(blockX, y - 10, 10, 9, 4, 4);
+            g.fillRect(blockX, y - 10, 10, 9);
             if (index < fighter.shields()) {
                 g.setColor(new Color(80, 220, 255));
-                g.fillRoundRect(blockX, y - 10, 10, 9, 4, 4);
+                g.fillRect(blockX, y - 10, 10, 9);
             } else if (index == fighter.shields()) {
                 int progress = (int) (10 * fighter.shieldRegenerationProgress());
                 if (progress > 0) {
                     g.setColor(new Color(80, 220, 255, 190));
-                    g.fillRoundRect(blockX, y - 10, progress, 9, 4, 4);
+                    g.fillRect(blockX, y - 10, progress, 9);
                 }
             }
+            g.setColor(new Color(225, 245, 255, 145));
+            g.drawRect(blockX, y - 10, 9, 8);
         }
 
         g.setColor(new Color(235, 238, 228));
@@ -1090,11 +1110,17 @@ class GamePanel extends JPanel implements ActionListener {
         int barY = y + 15;
         int barWidth = 245;
         g.setColor(new Color(55, 65, 64));
-        g.fillRoundRect(barX, barY, barWidth, 10, 8, 8);
-        g.setColor(fighter.stamina() < 25 ? new Color(245, 175, 70) : fighter.color());
-        g.fillRoundRect(barX, barY, (int) (barWidth * fighter.stamina() / 100.0), 10, 8, 8);
-        g.setColor(new Color(255, 255, 255, 100));
-        g.drawRoundRect(barX, barY, barWidth, 10, 8, 8);
+        g.fillRect(barX, barY, barWidth, 10);
+        int filledSegments = (int) Math.ceil(fighter.stamina() / 100.0 * 20);
+        for (int segment = 0; segment < 20; segment++) {
+            int segmentX = barX + 2 + segment * 12;
+            g.setColor(segment < filledSegments
+                    ? fighter.stamina() < 25 ? new Color(245, 175, 70) : fighter.color()
+                    : new Color(75, 85, 83));
+            g.fillRect(segmentX, barY + 2, 10, 6);
+        }
+        g.setColor(new Color(235, 238, 228, 190));
+        g.drawRect(barX, barY, barWidth, 10);
     }
 
     /**
