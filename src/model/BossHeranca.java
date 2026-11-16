@@ -7,8 +7,8 @@ public class BossHeranca extends Boss {
     private int moveTick = 0;
 
     /** Inicializa chefe em alguma posição. */
-    public BossHeranca(double x, double y) {
-        super("O Descendente", new Color(70, 190, 100), 10, x, y);
+    public BossHeranca(double x, double y, int fireRate) {
+        super("O Descendente", new Color(70, 190, 100), 30, x, y, fireRate);
     }
 
     public void draw(Graphics2D g){
@@ -43,7 +43,7 @@ public class BossHeranca extends Boss {
     public Projectile shoot(Player player) {
         return new Proj_split(
             x, y, player.centerX(), player.centerY(), true, 
-            new Color(244,131,38), 5);
+            new Color(244,38,38), 5);
 
     }
 }

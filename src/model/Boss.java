@@ -16,12 +16,13 @@ public abstract class Boss {
     protected int hp;
     protected double x, y;
     protected int cooldown;
+    protected int fireRate;
     protected boolean dead = false;
 
     /** Recebe os valores que diferenciam este chefe dos outros. */
-    public Boss(String name, Color color, int maxhp, double x, double y) {
+    public Boss(String name, Color color, int maxhp, double x, double y, int fireRate) {
         this.name = name; this.color = color; this.maxHP = maxhp; 
-        this.hp = maxHP; this.x = x; this.y = y;
+        this.hp = maxHP; this.x = x; this.y = y; this.fireRate = fireRate;
     }
 
     // movimentação
@@ -50,7 +51,7 @@ public abstract class Boss {
         if (dead) {
             return false;
         }
-        if (++cooldown < 30) {
+        if (++cooldown < fireRate) {
             return false;
         }
         cooldown = 0;

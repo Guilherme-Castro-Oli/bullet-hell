@@ -15,12 +15,13 @@ public class Projectile {
     protected  final boolean fromBoss;
     protected final Color color;
     protected final int radius;
+    protected final int pixelSize;
     protected int frames;
 
     //projetil do jogador
     public Projectile(
         double x, double y, double aimX, double aimY, 
-        boolean fromBoss, Color color, int radius) {
+        boolean fromBoss, Color color, int radius, int pixelSize) {
         this.x = x;
         this.y = y;
         vx = aimX * 3;
@@ -37,6 +38,7 @@ public class Projectile {
         this.fromBoss = fromBoss;
         this.color = color;
         this.radius = radius;
+        this.pixelSize = 2;
     }
 
     /** Avança o projétil um quadro. */
@@ -78,7 +80,6 @@ public class Projectile {
                 shade(color, 0.48),
                 shade(color, 0.86)
         };
-        int pixelSize = 2;
         int width = pixels[0].length() * pixelSize;
         int height = pixels.length * pixelSize;
         Graphics2D shot = (Graphics2D) g.create();
@@ -116,7 +117,6 @@ public class Projectile {
                 shade(color, 0.48),
                 shade(color, 0.82)
         };
-        int pixelSize = 2;
         int left = (int) Math.round(x) - pixels[0].length() * pixelSize / 2;
         int top = (int) Math.round(y) - pixels.length * pixelSize / 2;
         for (int row = 0; row < pixels.length; row++) {

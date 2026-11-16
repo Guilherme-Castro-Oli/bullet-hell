@@ -10,7 +10,7 @@ public class Proj_split extends Projectile {
     public Proj_split(
         double x, double y, double aimX, double aimY, 
         boolean fromBoss, Color color, int radius) {
-        super(x, y, aimX, aimY, fromBoss, color, radius * 2);
+        super(x, y, aimX, aimY, fromBoss, color, radius * 2, 2);
     }
 
     public void update(ArrayList<Projectile> projectiles) {
@@ -24,7 +24,7 @@ public class Proj_split extends Projectile {
                 projectiles.add(new Projectile(x, y,
                         x + Math.cos(angle) * 100,
                         y + Math.sin(angle) * 100,
-                        fromBoss, color, radius / 2));
+                        fromBoss, new Color(244,244,38), radius / 2, 1));
             }
             x = -100;
         }

@@ -60,7 +60,7 @@ public class Player {
     public Projectile fire() {
         return new Projectile(
             centerX(), centerY(), aimX, aimY, false, 
-            new Color(244,131,38), 5);
+            new Color(244,131,38), 5, 1);
     }
 
     public boolean canShoot() {
@@ -68,7 +68,7 @@ public class Player {
             return false;
         }
         cooldown++;
-        if (cooldown > 7) {
+        if (cooldown > 10) {
             cooldown = 0;
             return true;
         }

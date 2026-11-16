@@ -68,6 +68,7 @@ public class ScreenSaver extends JFrame {
         ArrayList<Player> players;
         PortalLevel portal;
         boolean reset;
+        int level;
 
         // Flags para rastrear teclas pressionadas
         private boolean space = false;
@@ -167,9 +168,11 @@ public class ScreenSaver extends JFrame {
             players.add(p1);
             players.add(p2);
             projectiles = new ArrayList<Projectile>();
-            boss = new BossHeranca(300, 200);
+            level = 5;
+            boss = new BossHeranca(300, 200, 10 * level);
             portal = new PortalLevel(-100, -100, null);
             reset = false;
+            
 
             this.timer = new Timer(DELAY_MS, this);
         }
@@ -267,6 +270,9 @@ public class ScreenSaver extends JFrame {
                     portal.changePos();
                 }
                 if (portal.isPlayerNear(p1, p2) && space) {
+                    if (level > 1) {
+                        level--;
+                    }
                     portal.changePos();
                     reset = true;
                 }
@@ -278,7 +284,7 @@ public class ScreenSaver extends JFrame {
                 players = new ArrayList<Player>();
                 players.add(p1);
                 players.add(p2);
-                boss = new BossHeranca(300, 200);
+                boss = new BossHeranca(300, 200, 10 * level);
                 projectiles.clear();
                 portal = new PortalLevel(-100, -100, null);
                 reset = false;
